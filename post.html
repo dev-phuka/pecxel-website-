@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog | pEc-XeL Innovations &amp; Technology</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav>
+    <a class="logo" href="index.html" aria-label="pEc-XeL home">
+      <span class="brand-mark"><img src="images/pEc-XeL Logo.png" alt="" class="logo-img" /></span>
+      <span class="brand-copy"><span class="brand-text">pEc-XeL</span><span class="brand-line">Innovations &amp; Technology</span></span>
+    </a>
+    <ul data-nav-links>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="projects.html">Projects</a></li>
+      <li><a href="store.html">Store</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="blog.html" aria-current="page">Blog</a></li>
+      <li><a href="donate.html">Donate</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
+
+  <main class="page-wrap">
+    <a class="back-link link" href="blog.html">&larr; Back to Blog</a>
+    <div class="breadcrumbs" id="breadcrumbs"></div>
+    <h1 class="post-title" id="postTitle">Loading...</h1>
+    <div class="post-meta" id="postMeta"></div>
+    <img class="thumb" id="thumb" alt="Post thumbnail" style="display:none;" />
+
+    <div class="content-card" id="content">Loading...</div>
+
+    <div class="error-box" id="error" style="display:none; margin-top:14px;">
+      Unable to load the post.
+    </div>
+  </main>
+
+  <script>
+    function $(id){ return document.getElementById(id); }
+
+    function getSlug(){
+      const params = new URLSearchParams(location.search);
+      return params.get('slug');
+    }
+
+    async function loadPost(){
+      const slug = getSlug();
+      if(!slug){
+        $('postTitle').textContent = 'Post not found';
+        $('error').style.display='block';
+        $('content').textContent='';
+        return;
+      }
+
+      try{
+        const res = await fetch('/api/posts/' + encodeURIComponent(slug));
+        if(!res.ok){
+          const t = await res.text();
+          throw new Error(t || 'Failed');
+        }
+        const data = await res.json();
+        const p = data.post;
+
+        $('breadcrumbs').textContent = p.category ? ('Category: ' + p.category) : '';
+        $('postTitle').textContent = p.title || '';
+        $('postMeta').textContent = (p.date || '') + (p.status ? (' • ' + p.status) : '');
+
+        if(p.thumbnail){
+          $('thumb').src = p.thumbnail;
+          $('thumb').style.display='block';
+        } else {
+          $('thumb').style.display='none';
+        }
+
+        $('content').innerHTML = p.content_html || '<p>No content.</p>';
+      }catch(e){
+        $('error').style.display='block';
+        $('content').innerHTML = '';
+        $('postTitle').textContent = 'Error loading post';
+        $('postMeta').textContent = '';
+        console.error(e);
+      }
+    }
+
+    loadPost();
+  </script>
+</body>
+</html>
+

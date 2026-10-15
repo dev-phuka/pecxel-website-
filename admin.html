@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Website Manager | pEc-XeL</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .admin-shell{width:min(1360px,calc(100% - 40px));margin:0 auto;padding:116px 0 64px}
+    .admin-header{margin-bottom:26px}
+    .admin-header h1{font-size:clamp(2rem,4vw,3.2rem);line-height:1.05;margin-top:6px}
+    .admin-header p:last-child,.admin-note{color:var(--muted);margin-top:10px}
+    .admin-access{display:grid;grid-template-columns:minmax(220px,380px) auto 1fr;align-items:end;gap:12px;padding:16px 0;border-block:1px solid var(--line);margin-bottom:20px}
+    .admin-access label,.admin-editor label,.settings-form label{display:grid;gap:6px;font-weight:750;color:var(--muted);font-size:.9rem}
+    .admin-access input,.admin-editor input,.admin-editor select,.admin-editor textarea,.settings-form input{width:100%;min-height:44px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:rgba(255,255,255,.06);color:var(--ink)}
+    .admin-editor textarea{min-height:100px;resize:vertical}
+    .admin-editor input[type=checkbox]{width:18px;min-height:18px;accent-color:var(--brand)}
+    .admin-status{color:var(--muted);font-size:.92rem;align-self:center}
+    .admin-status[data-tone=error]{color:#ff9292}.admin-status[data-tone=success]{color:var(--brand)}
+    .admin-tabs{display:flex;gap:6px;overflow-x:auto;padding:0 0 12px;border-bottom:1px solid var(--line)}
+    .admin-tab{flex:0 0 auto;min-height:42px;padding:0 14px;border:1px solid transparent;border-radius:var(--radius);background:transparent;color:var(--muted);font-weight:800;cursor:pointer}
+    .admin-tab[aria-selected=true]{border-color:rgba(49,214,179,.45);background:rgba(49,214,179,.12);color:var(--ink)}
+    .admin-panel{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(320px,.75fr);gap:24px;padding-top:20px}
+    .admin-panel[hidden],.admin-settings[hidden],[data-field][hidden]{display:none}
+    .admin-panel h2,.admin-settings h2{font-size:1.25rem;margin-bottom:14px}
+    .admin-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+    .admin-table-wrap{overflow-x:auto;border-block:1px solid var(--line)}
+    .admin-table{width:100%;border-collapse:collapse;min-width:560px}
+    .admin-table th,.admin-table td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+    .admin-table th{color:var(--muted);font-size:.78rem;text-transform:uppercase}.admin-table td{font-size:.92rem}
+    .admin-row-actions{display:flex;gap:6px}.admin-row-actions button{padding:7px 10px;min-height:34px;font-size:.82rem}
+    .admin-editor{padding:16px;border:1px solid var(--line);border-radius:var(--radius);background:rgba(255,255,255,.035)}
+    .admin-editor form,.settings-form{display:grid;gap:12px}.admin-form-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+    .admin-form-actions .btn{min-height:42px}.admin-check{display:flex!important;align-items:center;gap:10px!important}
+    .admin-check[hidden]{display:none!important}
+    .admin-settings{padding:24px 0}.settings-form{max-width:760px;grid-template-columns:repeat(2,minmax(0,1fr))}
+    .settings-form .full{grid-column:1/-1}.admin-note{font-size:.88rem}
+    @media(max-width:900px){.admin-panel{grid-template-columns:1fr}}
+    @media(max-width:620px){.admin-shell{width:calc(100% - 28px);padding-top:100px}.admin-access{grid-template-columns:1fr}.settings-form{grid-template-columns:1fr}.settings-form .full{grid-column:auto}.admin-form-actions{flex-direction:column}.admin-form-actions .btn{width:100%}}
+  </style>
+</head>
+<body>
+  <header class="site-header"><nav class="nav-shell" aria-label="Admin navigation">
+    <a class="brand" href="index.html" aria-label="pEc-XeL home"><span class="brand-mark"><img src="images/pEc-XeL Logo.png" alt="" class="logo-img"></span><span class="brand-copy"><span class="brand-text">pEc-XeL</span><span class="brand-line">Website Manager</span></span></a>
+    <a class="btn btn-ghost" href="index.html">View website</a>
+  </nav></header>
+  <main class="admin-shell">
+    <header class="admin-header"><p class="eyebrow">Site management</p><h1>Website manager</h1><p>Manage products, services, projects, articles, custom pages, and public contact details.</p></header>
+    <section class="admin-access" aria-label="Administrator access">
+      <label for="adminToken">Admin token<input id="adminToken" type="password" autocomplete="current-password" placeholder="Enter your server admin token"></label>
+      <button class="btn btn-accent" id="connectAdmin" type="button">Connect</button>
+      <p class="admin-status" id="adminStatus" role="status" aria-live="polite">Enter your admin token to load saved content.</p>
+    </section>
+    <nav class="admin-tabs" aria-label="Manage content">
+      <button class="admin-tab" type="button" data-admin-mode="products" aria-selected="true">Products</button>
+      <button class="admin-tab" type="button" data-admin-mode="services" aria-selected="false">Services</button>
+      <button class="admin-tab" type="button" data-admin-mode="projects" aria-selected="false">Projects</button>
+      <button class="admin-tab" type="button" data-admin-mode="posts" aria-selected="false">Blog posts</button>
+      <button class="admin-tab" type="button" data-admin-mode="donations" aria-selected="false">Donations</button>
+      <button class="admin-tab" type="button" data-admin-mode="pages" aria-selected="false">Custom pages</button>
+      <button class="admin-tab" type="button" data-admin-mode="settings" aria-selected="false">Site settings</button>
+    </nav>
+    <section class="admin-panel" id="contentPanel">
+      <div><div class="admin-panel-head"><h2 id="listTitle">Products</h2><button class="btn btn-outline" id="refreshContent" type="button">Refresh</button></div>
+        <div class="admin-table-wrap"><table class="admin-table"><thead id="recordHead"></thead><tbody id="recordRows"><tr><td>Connect to load content.</td></tr></tbody></table></div>
+      </div>
+      <div class="admin-editor"><h2 id="editorTitle">Add product</h2>
+        <form id="recordForm">
+          <input type="hidden" id="recordId">
+          <label data-field="name">Name<input id="recordName" required></label>
+          <label data-field="title" hidden>Title<input id="recordTitle"></label>
+          <label data-field="slug" hidden>Page address<input id="recordSlug" placeholder="Auto-generated from title"></label>
+          <label data-field="category">Category<input id="recordCategory"></label>
+          <label data-field="date" hidden>Publish date<input id="recordDate" type="date"></label>
+          <label data-field="image">Image URL or path<input id="recordImage" placeholder="images/products/item.jpg"></label>
+          <label data-field="price_mwk">Price (MWK)<input id="recordPrice" type="number" min="0" step="1"></label>
+          <label data-field="stock">Stock quantity<input id="recordStock" type="number" min="0" step="1"></label>
+          <label data-field="position">Display order<input id="recordPosition" type="number" min="0" step="1" value="0"></label>
+          <label data-field="description">Short description<textarea id="recordDescription" rows="3"></textarea></label>
+          <label data-field="summary" hidden>Page summary<textarea id="recordSummary" rows="2"></textarea></label>
+          <label data-field="body" hidden>Page content<textarea id="recordBody" rows="7"></textarea></label>
+          <label data-field="content_html" hidden>Article content (HTML)<textarea id="recordContent" rows="7" placeholder="&lt;p&gt;Article content...&lt;/p&gt;"></textarea></label>
+          <label data-field="content_markdown" hidden>Article content (Markdown)<textarea id="recordMarkdown" rows="4"></textarea></label>
+          <label data-field="status">Visibility<select id="recordStatus"><option value="published">Published</option><option value="draft">Draft</option></select></label>
+          <label class="admin-check" data-field="show_in_nav" hidden><input id="recordShowNav" type="checkbox" checked>Show custom page in navigation</label>
+          <div class="admin-form-actions"><button class="btn btn-accent" id="saveRecord" type="submit">Add product</button><button class="btn btn-ghost" id="resetRecord" type="button">Clear form</button></div>
+        </form>
+        <p class="admin-note">Unpublished entries are hidden from the public website. Product prices and stock can be left blank.</p>
+      </div>
+    </section>
+    <section class="admin-settings" id="settingsPanel" hidden><h2>Public site details</h2>
+      <form class="settings-form" id="settingsForm">
+        <label>Company name<input name="site_name" required></label><label>Brand descriptor<input name="brand_descriptor" required></label>
+        <label class="full">Tagline<input name="tagline"></label><label>WhatsApp number<input name="whatsapp_number" inputmode="tel" placeholder="265..." required></label>
+        <label>Email address<input name="contact_email" type="email"></label><label>Location<input name="location"></label><label>Working hours<input name="working_hours"></label>
+        <div class="admin-form-actions full"><button class="btn btn-accent" type="submit">Save site details</button></div>
+      </form>
+      <p class="admin-note">Use the full international WhatsApp number without spaces or the plus sign.</p>
+    </section>
+  </main>
+  <script src="admin.js"></script>
+</body>
+</html>

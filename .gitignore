@@ -1,0 +1,9 @@
+node_modules/
+.env
+.env.*
+!.env.example
+pecxel-blog.sqlite
+pecxel-blog.sqlite-shm
+pecxel-blog.sqlite-wal
+server.out.log
+server.err.log

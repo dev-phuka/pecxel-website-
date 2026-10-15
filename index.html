@@ -1,0 +1,686 @@
+chart <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="pEc-XeL Innovations & Technology provides electronics, electrical, repair, retail, training, and innovation services in Malawi.">
+  <title>pEc-XeL Innovations &amp; Technology</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <svg class="icon-sprite" aria-hidden="true" focusable="false">
+    <symbol id="icon-whatsapp" viewBox="0 0 24 24">
+      <path d="M12.04 2.5a9.35 9.35 0 0 0-7.98 14.2L2.9 21.5l4.93-1.1a9.35 9.35 0 1 0 4.21-17.9Zm0 1.9a7.45 7.45 0 0 1 6.42 11.22 7.45 7.45 0 0 1-9.94 2.73l-.34-.18-2.67.6.63-2.55-.22-.36A7.45 7.45 0 0 1 12.04 4.4Zm-3.2 3.94c-.16 0-.42.06-.65.32-.23.25-.85.83-.85 2.02s.87 2.34.99 2.5c.12.16 1.68 2.7 4.18 3.67 2.08.8 2.5.64 2.95.6.45-.04 1.46-.6 1.67-1.18.2-.58.2-1.08.14-1.18-.06-.1-.22-.16-.47-.28-.25-.12-1.46-.72-1.68-.8-.23-.08-.4-.12-.56.12-.16.25-.64.8-.78.96-.14.16-.29.18-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.48-1.39-1.73-.14-.25-.02-.38.1-.5.12-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.16.04-.31-.02-.43-.06-.12-.56-1.35-.77-1.85-.2-.48-.4-.42-.56-.43h-.5Z"/>
+    </symbol>
+    <symbol id="icon-facebook" viewBox="0 0 24 24">
+      <path d="M14.2 8.4V6.9c0-.73.48-.9.82-.9H17V2.7l-2.72-.02c-3.02 0-3.7 2.26-3.7 3.7V8.4H8.1v3.36h2.48v9.56h3.62v-9.56h2.67l.35-3.36H14.2Z"/>
+    </symbol>
+    <symbol id="icon-instagram" viewBox="0 0 24 24">
+      <path d="M7.2 2.8h9.6a4.4 4.4 0 0 1 4.4 4.4v9.6a4.4 4.4 0 0 1-4.4 4.4H7.2a4.4 4.4 0 0 1-4.4-4.4V7.2a4.4 4.4 0 0 1 4.4-4.4Zm0 2A2.4 2.4 0 0 0 4.8 7.2v9.6a2.4 2.4 0 0 0 2.4 2.4h9.6a2.4 2.4 0 0 0 2.4-2.4V7.2a2.4 2.4 0 0 0-2.4-2.4H7.2Zm4.8 3.05a4.15 4.15 0 1 1 0 8.3 4.15 4.15 0 0 1 0-8.3Zm0 2a2.15 2.15 0 1 0 0 4.3 2.15 2.15 0 0 0 0-4.3Zm4.38-2.34a1.05 1.05 0 1 1 0 2.1 1.05 1.05 0 0 1 0-2.1Z"/>
+    </symbol>
+    <symbol id="icon-linkedin" viewBox="0 0 24 24">
+      <path d="M5.5 8.8H2.7v12h2.8v-12ZM4.1 3.2a1.65 1.65 0 1 0 0 3.3 1.65 1.65 0 0 0 0-3.3Zm17.2 10.75c0-3.22-1.72-5.42-4.52-5.42-1.37 0-2.35.66-2.88 1.55V8.8h-2.8v12h2.8v-6.42c0-1.7.86-2.98 2.44-2.98 1.43 0 2.16.98 2.16 2.82v6.58h2.8v-6.85Z"/>
+    </symbol>
+    <symbol id="icon-youtube" viewBox="0 0 24 24">
+      <path d="M21.6 7.05a3 3 0 0 0-2.1-2.12C17.65 4.43 12 4.43 12 4.43s-5.65 0-7.5.5A3 3 0 0 0 2.4 7.05 31.2 31.2 0 0 0 1.9 12a31.2 31.2 0 0 0 .5 4.95 3 3 0 0 0 2.1 2.12c1.85.5 7.5.5 7.5.5s5.65 0 7.5-.5a3 3 0 0 0 2.1-2.12c.5-1.86.5-4.95.5-4.95s0-3.09-.5-4.95ZM10 15.45v-6.9L15.9 12 10 15.45Z"/>
+    </symbol>
+    <symbol id="icon-bolt" viewBox="0 0 24 24">
+      <path d="M13.2 2.4 4.6 13.1h6.05l-.95 8.5 8.72-11.56h-6.17l.95-7.64Z"/>
+    </symbol>
+    <symbol id="icon-image" viewBox="0 0 24 24">
+      <path d="M4.5 4h15A2.5 2.5 0 0 1 22 6.5v11A2.5 2.5 0 0 1 19.5 20h-15A2.5 2.5 0 0 1 2 17.5v-11A2.5 2.5 0 0 1 4.5 4Zm0 2A.5.5 0 0 0 4 6.5v8.7l3.42-3.42a2 2 0 0 1 2.83 0l1.37 1.37 3.13-3.13a2 2 0 0 1 2.83 0L20 12.43V6.5a.5.5 0 0 0-.5-.5h-15Zm15 12a.5.5 0 0 0 .5-.5v-2.24l-3.84-3.84-4.54 4.54-2.78-2.77L4 18h15.5ZM8.1 8.35a1.45 1.45 0 1 1 0 2.9 1.45 1.45 0 0 1 0-2.9Z"/>
+    </symbol>
+  </svg>
+
+  <header class="site-header">
+    <nav class="nav-shell" aria-label="Main navigation">
+      <a class="brand" href="#home" aria-label="pEc-XeL home">
+        <span class="brand-mark">
+          <img src="images/pEc-XeL Logo.png" alt="" class="logo-img">
+        </span>
+        <span class="brand-copy">
+          <span class="brand-text">pEc-XeL</span>
+          <span class="brand-line">Innovations &amp; Technology</span>
+        </span>
+      </a>
+      <button class="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false" data-nav-toggle>
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul class="nav-links" data-nav-links>
+        <li><a href="index.html" aria-current="page">Home</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="projects.html">Projects</a></li>
+        <li><a href="store.html">Store</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="donate.html">Donate</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section id="home" class="hero" aria-label="pEc-XeL Hero">
+      <div id="welcomeToast" class="welcome-toast" hidden>
+        <div class="welcome-toast-inner">
+          <div class="welcome-toast-title">Welcome to pEc-XeL</div>
+          <p>Need a repair, project prototype, or engineering consultation? Start with the quote helper.</p>
+          <div class="welcome-toast-actions">
+            <a href="#quote" class="btn btn-accent welcome-toast-btn">Get Estimate</a>
+            <button type="button" class="btn btn-ghost welcome-toast-close" data-close-welcome>Got it</button>
+          </div>
+        </div>
+      </div>
+
+      <video class="hero-video" autoplay muted loop playsinline>
+        <source src="images/background.MP4" type="video/mp4">
+      </video>
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <p class="eyebrow">Engineering, AI, electronics and repair services</p>
+        <h1>pEc-XeL Innovations &amp; Technology</h1>
+        <p class="hero-lead">
+          Malawi-based engineering and technology for everyday needs: device repair, electrical installation,
+          embedded prototypes, AI tools, training, and the ViziXel accessibility project.
+        </p>
+        <div class="hero-actions">
+          <a href="#quote" class="btn btn-accent">Start a Quote</a>
+          <a href="#services" class="btn btn-light">Explore Services</a>
+          <a href="store.html" class="btn btn-ghost">Shop phones &amp; technology</a>
+          <a href="#vizixel" class="btn btn-ghost">See ViziXel</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats" aria-label="Company statistics">
+      <div class="stat-box">
+        <strong>500+</strong>
+        <span>Devices repaired</span>
+      </div>
+      <div class="stat-box">
+        <strong>100+</strong>
+        <span>Clients served</span>
+      </div>
+      <div class="stat-box">
+        <strong>20+</strong>
+        <span>Projects completed</span>
+      </div>
+      <div class="stat-box">
+        <strong>1</strong>
+        <span>Flagship innovation</span>
+      </div>
+    </section>
+
+    <section id="about" class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Who we are</p>
+        <h2>Engineering support with a builder's mindset.</h2>
+        <p class="lead">
+          pEc-XeL is a Malawian engineering and technology company focused on useful systems,
+          dependable repairs, and community-centered innovation.
+        </p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-panel wide">
+          <h3>What makes pEc-XeL different</h3>
+          <p>
+            The company combines workshop repair discipline with electronics, electrical engineering,
+            AI exploration, and practical training. That means clients can come for a phone repair,
+            a wiring quote, a prototype, or a learning pathway and stay inside one technical ecosystem.
+          </p>
+        </article>
+        <article class="feature-panel">
+          <span class="panel-kicker">Mission</span>
+          <h3>Build useful solutions</h3>
+          <p>Provide innovative engineering services that improve everyday life and create opportunity.</p>
+        </article>
+        <article class="feature-panel">
+          <span class="panel-kicker">Vision</span>
+          <h3>African innovation leader</h3>
+          <p>Grow into a trusted technology and engineering company with regional impact.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="services" class="section section-alt">
+      <div class="section-heading">
+        <p class="eyebrow">Services</p>
+        <h2>Choose the help you need.</h2>
+        <p class="lead">Filter services by category, compare what is included, then request a quote.</p>
+      </div>
+
+      <div class="filter-bar" aria-label="Service filters">
+        <button type="button" class="filter-chip active" data-filter="all">All</button>
+        <button type="button" class="filter-chip" data-filter="repair">Repair</button>
+        <button type="button" class="filter-chip" data-filter="engineering">Engineering</button>
+        <button type="button" class="filter-chip" data-filter="ai">AI</button>
+        <button type="button" class="filter-chip" data-filter="training">Training</button>
+      </div>
+
+      <div class="service-grid">
+        <article class="service-card" data-service-card data-category="repair">
+          <span class="service-code">01</span>
+          <h3>Mobile Phone Repair</h3>
+          <p>Screen replacement, charging ports, software recovery, battery issues, and motherboard checks.</p>
+          <ul class="list">
+            <li>Diagnosis before repair</li>
+            <li>Parts and labor guidance</li>
+            <li>After-service testing</li>
+          </ul>
+          <a href="#quote" class="text-link" data-intent="Mobile Phone Repair">Book repair</a>
+        </article>
+        <article class="service-card" data-service-card data-category="repair">
+          <span class="service-code">02</span>
+          <h3>Laptop Repair &amp; Upgrades</h3>
+          <p>Keyboard, screen, SSD, RAM, operating system, overheating, and diagnostics support.</p>
+          <ul class="list">
+            <li>Performance upgrades</li>
+            <li>Data-aware repair handling</li>
+            <li>Hardware troubleshooting</li>
+          </ul>
+          <a href="#quote" class="text-link" data-intent="Laptop Repair">Book repair</a>
+        </article>
+        <article class="service-card" data-service-card data-category="engineering">
+          <span class="service-code">03</span>
+          <h3>Electrical Services</h3>
+          <p>House wiring, commercial installation, solar support, maintenance, and system checks.</p>
+          <ul class="list">
+            <li>Site assessment</li>
+            <li>Installation planning</li>
+            <li>Safety-focused maintenance</li>
+          </ul>
+          <a href="#quote" class="text-link" data-intent="Electrical Services">Request quote</a>
+        </article>
+        <article class="service-card" data-service-card data-category="engineering">
+          <span class="service-code">04</span>
+          <h3>Electronics &amp; Embedded Systems</h3>
+          <p>PCB repair, component replacement, Arduino prototypes, sensors, and custom builds.</p>
+          <ul class="list">
+            <li>Prototype planning</li>
+            <li>Component sourcing guidance</li>
+            <li>Testing and iteration</li>
+          </ul>
+          <a href="#quote" class="text-link" data-intent="Electronics Project">Talk to engineer</a>
+        </article>
+        <article class="service-card" data-service-card data-category="ai">
+          <span class="service-code">05</span>
+          <h3>AI &amp; Software</h3>
+          <p>Customer assistants, automation, diagnostics concepts, computer vision, and data tools.</p>
+          <ul class="list">
+            <li>Workflow mapping</li>
+            <li>Prototype interfaces</li>
+            <li>AI assisted operations</li>
+          </ul>
+          <a href="#ai-page" class="text-link">Explore AI division</a>
+        </article>
+        <article class="service-card" data-service-card data-category="training">
+          <span class="service-code">06</span>
+          <h3>Store &amp; Training Support</h3>
+          <p>Accessories, parts, tools, repair coaching, electronics classes, and AI fundamentals.</p>
+          <ul class="list">
+            <li>Beginner-friendly courses</li>
+            <li>Hands-on practice</li>
+            <li>Components and tool advice</li>
+          </ul>
+          <a href="#academy" class="text-link">View academy</a>
+        </article>
+      </div>
+    </section>
+
+    <section id="quote" class="section quote-section">
+      <div class="section-heading">
+        <p class="eyebrow">Quick estimate</p>
+        <h2>Describe the job and get a starting range.</h2>
+        <p class="lead">This helper gives a rough estimate so customers know what information to send before booking.</p>
+      </div>
+      <div class="quote-layout">
+        <form class="quote-tool" id="quoteTool">
+          <label>
+            Service type
+            <select id="quoteService" name="service">
+              <option value="phone">Phone repair</option>
+              <option value="laptop">Laptop repair</option>
+              <option value="electrical">Electrical service</option>
+              <option value="electronics">Electronics project</option>
+              <option value="ai">AI or software support</option>
+              <option value="training">Training enrollment</option>
+            </select>
+          </label>
+          <label>
+            Complexity
+            <select id="quoteComplexity" name="complexity">
+              <option value="basic">Basic</option>
+              <option value="standard" selected>Standard</option>
+              <option value="advanced">Advanced</option>
+            </select>
+          </label>
+          <label>
+            Timeline
+            <select id="quoteTimeline" name="timeline">
+              <option value="normal">Flexible</option>
+              <option value="soon">This week</option>
+              <option value="urgent">Urgent</option>
+            </select>
+          </label>
+          <label class="full">
+            Notes
+            <textarea id="quoteNotes" name="notes" rows="4" placeholder="Example: iPhone screen cracked, laptop is slow, solar quote for 3-room house..."></textarea>
+          </label>
+          <button type="submit" class="btn btn-accent">Calculate Estimate</button>
+        </form>
+        <aside class="quote-result" aria-live="polite">
+          <span class="panel-kicker">Estimate preview</span>
+          <h3 id="quoteRange">MWK 25,000 - 95,000</h3>
+          <p id="quoteSummary">Choose your service and complexity to generate a practical starting range.</p>
+          <a id="quoteWhatsapp" class="btn btn-light" href="https://wa.me/265YOURNUMBER" target="_blank" rel="noopener">Send on WhatsApp</a>
+          <p class="tiny-note">Final price depends on diagnosis, parts, distance, and site conditions.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="vizixel" class="section">
+      <div class="innovation-layout">
+        <div>
+          <p class="eyebrow">Featured innovation</p>
+          <h2>ViziXel accessibility system.</h2>
+          <p class="lead">
+            ViziXel is an intelligent accessibility project designed to help visually impaired people
+            navigate environments with sensing, guidance, and future AI assistance.
+          </p>
+          <div class="hero-actions left">
+            <a href="#donate" class="btn btn-accent">Support ViziXel</a>
+            <a href="#projects" class="btn btn-ghost">View project work</a>
+          </div>
+        </div>
+        <div class="image-feature media-card">
+          <img src="images/vizixel/WhatsApp Image 2026-06-04 at 15.02.24.jpeg" alt="ViziXel prototype preview" loading="lazy" decoding="async">
+          <div class="media-caption">
+            <span class="panel-kicker">Prototype media</span>
+            <strong>ViziXel development preview</strong>
+          </div>
+        </div>
+      </div>
+      <div class="timeline">
+        <article>
+          <span>Stage 1</span>
+          <h3>Problem research</h3>
+          <p>Define navigation challenges, user needs, and real-world safety constraints.</p>
+        </article>
+        <article>
+          <span>Stage 2</span>
+          <h3>Prototype build</h3>
+          <p>Combine sensors, embedded control, voice assistance, and early interaction design.</p>
+        </article>
+        <article>
+          <span>Stage 3</span>
+          <h3>Testing loop</h3>
+          <p>Improve usability, power efficiency, object recognition, and feedback reliability.</p>
+        </article>
+        <article>
+          <span>Stage 4</span>
+          <h3>Deployment pathway</h3>
+          <p>Prepare demos, partnerships, pilot users, and sponsorship support.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="projects" class="section section-alt">
+      <div class="section-heading">
+        <p class="eyebrow">Recent projects</p>
+        <h2>Workshop work, prototypes, and field systems.</h2>
+        <p class="lead">Selected concepts and builds across accessibility, monitoring, and hands-on engineering education.</p>
+      </div>
+      <div class="project-grid">
+        <article class="project-card">
+          <div class="project-image">
+            <img src="images/vizixel/WhatsApp Image 2026-06-04 at 15.02.24.jpeg" alt="ViziXel project preview" loading="lazy" decoding="async">
+            <span class="image-badge">Prototype</span>
+          </div>
+          <div>
+            <span class="panel-kicker">Accessibility</span>
+            <h3>ViziXel Prototype</h3>
+            <p>Embedded accessibility concept using sensing, voice support, and AI direction.</p>
+            <p><strong>Result:</strong> A flagship project ready for testing, storytelling, and sponsor support.</p>
+          </div>
+        </article>
+        <article class="project-card">
+          <div class="project-image image-placeholder" data-image-label="Industrial monitoring">
+            <svg class="placeholder-icon"><use href="#icon-bolt"></use></svg>
+            <span class="image-badge">Sensor system</span>
+          </div>
+          <div>
+            <span class="panel-kicker">Monitoring</span>
+            <h3>Industrial Monitoring System</h3>
+            <p>Sensors and dashboards for equipment visibility, data logging, and operational awareness.</p>
+            <p><strong>Result:</strong> Better guidance for maintenance decisions and system uptime.</p>
+          </div>
+        </article>
+        <article class="project-card">
+          <div class="project-image image-placeholder" data-image-label="Arduino learning">
+            <svg class="placeholder-icon"><use href="#icon-image"></use></svg>
+            <span class="image-badge">Training demo</span>
+          </div>
+          <div>
+            <span class="panel-kicker">Education</span>
+            <h3>Arduino Learning Builds</h3>
+            <p>Small embedded prototypes that help learners understand sensors, logic, and control.</p>
+            <p><strong>Result:</strong> Training-ready examples for academy and community workshops.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="repairs" class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Repair gallery</p>
+        <h2>Practical work, carefully handled.</h2>
+        <p class="lead">From device diagnostics to embedded prototypes, every job starts with understanding what the system needs.</p>
+      </div>
+      <div class="gallery-grid">
+        <article class="gallery-item">
+          <div class="gallery-visual image-placeholder" data-image-label="Phone before and after">
+            <svg class="placeholder-icon"><use href="#icon-image"></use></svg>
+          </div>
+          <h3>Phone repairs</h3>
+          <p>Screens, charging, battery, software, and motherboard work.</p>
+        </article>
+        <article class="gallery-item">
+          <div class="gallery-visual image-placeholder" data-image-label="Laptop repair bench">
+            <svg class="placeholder-icon"><use href="#icon-image"></use></svg>
+          </div>
+          <h3>Laptop repairs</h3>
+          <p>SSD, RAM, keyboards, displays, cooling, and diagnostics.</p>
+        </article>
+        <article class="gallery-item">
+          <div class="gallery-visual image-placeholder" data-image-label="Electrical installation">
+            <svg class="placeholder-icon"><use href="#icon-bolt"></use></svg>
+          </div>
+          <h3>Electrical work</h3>
+          <p>Installations, maintenance, solar support, and inspections.</p>
+        </article>
+        <article class="gallery-item">
+          <img src="images/vizixel/WhatsApp Image 2026-06-04 at 15.02.24.jpeg" alt="Electronics prototype example" loading="lazy" decoding="async">
+          <h3>Electronics prototypes</h3>
+          <p>PCB checks, embedded systems, sensors, and demo builds.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="process" class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Our process</p>
+        <h2>Clear steps. Careful work. Useful outcomes.</h2>
+        <p class="lead">A straightforward approach keeps customers informed from the first conversation through testing and handover.</p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-panel">
+          <span class="panel-kicker">01 / Understand</span>
+          <h3>Start with the real problem</h3>
+          <p>We listen, inspect the device or site, and clarify what a successful result needs to look like.</p>
+        </article>
+        <article class="feature-panel">
+          <span class="panel-kicker">02 / Plan</span>
+          <h3>Agree on the next step</h3>
+          <p>We explain suitable options, likely requirements, and a starting estimate before work moves ahead.</p>
+        </article>
+        <article class="feature-panel">
+          <span class="panel-kicker">03 / Test</span>
+          <h3>Check the work and hand over</h3>
+          <p>We verify the repair or build and share clear guidance for using or maintaining the result.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="ai-page" class="section section-alt">
+      <div class="section-heading">
+        <p class="eyebrow">AI division</p>
+        <h2>Useful AI, connected to engineering work.</h2>
+        <p class="lead">The AI division can grow from customer assistance into diagnostics, computer vision, and learning tools.</p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-panel">
+          <span class="panel-kicker">Assistant</span>
+          <h3>Customer support bot</h3>
+          <p>Guide customers through repair booking, service questions, and project intake.</p>
+        </article>
+        <article class="feature-panel">
+          <span class="panel-kicker">Vision</span>
+          <h3>Computer vision</h3>
+          <p>Explore object recognition and accessibility use cases for ViziXel and diagnostics.</p>
+        </article>
+        <article class="feature-panel">
+          <span class="panel-kicker">Automation</span>
+          <h3>Operations tools</h3>
+          <p>Build internal tools for quotes, inventory, training records, and support workflows.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="academy" class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Training and academy</p>
+        <h2>Hands-on skills for builders.</h2>
+        <p class="lead">Short practical tracks for learners who want repair, electronics, electrical, and AI fundamentals.</p>
+      </div>
+      <div class="course-grid">
+        <article><h3>Mobile Repair</h3><p>Tools, diagnosis, screens, charging, and safe handling.</p></article>
+        <article><h3>Laptop Repair</h3><p>Hardware upgrades, operating systems, and performance troubleshooting.</p></article>
+        <article><h3>Arduino &amp; Electronics</h3><p>Sensors, logic, wiring, embedded basics, and prototype demos.</p></article>
+        <article><h3>AI Fundamentals</h3><p>Introductory AI concepts, prompting, automation, and responsible use.</p></article>
+      </div>
+      <div class="section-actions">
+        <a href="#contact" class="btn btn-accent" data-intent="Training Enrollment">Enroll now</a>
+      </div>
+    </section>
+
+    <section id="blog" class="section section-alt">
+      <div class="section-heading">
+        <p class="eyebrow">Blog and media center</p>
+        <h2>Turn workshop knowledge into trust.</h2>
+        <p class="lead">Publish repair stories, ViziXel updates, training activities, and engineering explainers.</p>
+      </div>
+      <div class="blog-layout">
+        <aside class="content-card">
+          <h3>Recommended categories</h3>
+          <ul class="list">
+            <li>Phone repairs</li>
+            <li>Laptop repairs</li>
+            <li>AI and automation</li>
+            <li>Electrical engineering</li>
+            <li>ViziXel updates</li>
+            <li>Training activities</li>
+          </ul>
+        </aside>
+        <div class="grid-blog" id="blogDynamicGrid">
+          <article class="blog-card bb-blog-skeleton">
+            <h3>Loading...</h3>
+            <p>Fetching latest published posts from the site.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="partnerships" class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Partnerships</p>
+        <h2>Build with pEc-XeL.</h2>
+        <p class="lead">The company is positioned for collaboration with education, industry, NGOs, investors, and technology partners.</p>
+      </div>
+      <div class="partner-strip">
+        <span>Universities</span>
+        <span>NGOs</span>
+        <span>Investors</span>
+        <span>Mobile companies</span>
+        <span>Engineering firms</span>
+        <span>Telecoms</span>
+      </div>
+      <div class="section-actions">
+        <a href="#contact" class="btn btn-accent" data-intent="Partnership">Become a partner</a>
+      </div>
+    </section>
+
+    <section id="donate" class="section donate-section">
+      <div class="section-heading">
+        <p class="eyebrow">Donations and sponsorship</p>
+        <h2>Support innovation in Malawi.</h2>
+        <p class="lead">Donations help fund ViziXel prototypes, testing, training, parts, and community deployment.</p>
+      </div>
+      <div class="donation-box">
+        <div class="donation-head">
+          <div>
+            <span class="panel-kicker">Current goal</span>
+            <h3>$5,000 prototype fund</h3>
+          </div>
+          <strong id="donationRaised">Raised: $850</strong>
+        </div>
+        <div class="progress-bar" aria-label="Donation progress">
+          <div class="progress" style="width:17%;"></div>
+        </div>
+        <div class="donation-buttons">
+          <a href="donate.html" class="btn btn-accent">Donate</a>
+          <a href="#contact" class="btn btn-ghost" data-intent="Sponsor">Become sponsor</a>
+          <a href="#contact" class="btn btn-ghost" data-intent="Mentor">Become mentor</a>
+        </div>
+        <div class="donation-details">
+          <h3>Payment methods</h3>
+          <div id="donationMethods" class="donation-methods">
+            <ul class="list">
+              <li>Airtel Money</li>
+              <li>TNM Mpamba</li>
+              <li>Bank Transfer</li>
+              <li>PayPal</li>
+            </ul>
+          </div>
+          <div id="donationPreviewHtml" class="donation-preview"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="team" class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Team</p>
+        <h2>The people behind the workshop.</h2>
+      </div>
+      <div class="team-grid">
+        <article class="team-card">
+          <span class="avatar">AP</span>
+          <h3>Aubrey Phuka</h3>
+          <p>Founder &amp; CEO, Electronics Engineer</p>
+        </article>
+        <article class="team-card">
+          <span class="avatar">SC</span>
+          <h3>Symon Chidothe</h3>
+          <p>Founder &amp; CEO, Electrical Engineer</p>
+        </article>
+        <article class="team-card">
+          <span class="avatar">+</span>
+          <h3>Growing team</h3>
+          <p>Add technicians, instructors, and project contributors as the company expands.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="contact" class="section contact-section">
+      <div class="section-heading">
+        <p class="eyebrow">Contact</p>
+        <h2>Tell pEc-XeL what you need.</h2>
+        <p class="lead">Use the form to prepare a message, then send it through your preferred contact method.</p>
+      </div>
+      <div class="contact-grid">
+        <div class="contact-card">
+          <h3>Contact information</h3>
+          <p><strong>Phone / WhatsApp:</strong> <a href="https://wa.me/265YOURNUMBER" class="link" data-whatsapp-link target="_blank" rel="noopener">Chat on WhatsApp</a></p>
+          <p><strong>Email:</strong> <span data-site-setting="contact_email">info@pecxel.com</span></p>
+          <p><strong>Location:</strong> <span data-site-setting="location">Malawi</span></p>
+          <p><strong>Working hours:</strong> <span data-site-setting="working_hours">Monday to Saturday</span></p>
+          <div class="social-links">
+            <a href="#" class="link">Facebook</a>
+            <a href="#" class="link">LinkedIn</a>
+            <a href="#" class="link">Instagram</a>
+            <a href="#" class="link">YouTube</a>
+          </div>
+        </div>
+        <form class="contact-form" id="contactForm">
+          <label>
+            Name
+            <input type="text" name="name" autocomplete="name" required>
+          </label>
+          <label>
+            Email
+            <input type="email" name="email" autocomplete="email" required>
+          </label>
+          <label>
+            Request type
+            <select name="requestType" id="requestType">
+              <option>Repair Booking</option>
+              <option>Electrical Quote</option>
+              <option>Electronics Project</option>
+              <option>AI Support</option>
+              <option>Training Enrollment</option>
+              <option>Partnership</option>
+              <option>Sponsorship</option>
+            </select>
+          </label>
+          <label>
+            Message
+            <textarea name="message" id="contactMessage" rows="5" required></textarea>
+          </label>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-accent">Prepare Message</button>
+            <a id="contactWhatsapp" class="btn btn-light" href="https://wa.me/265YOURNUMBER" target="_blank" rel="noopener">Open WhatsApp</a>
+          </div>
+          <p class="tiny-note" id="contactStatus">The form prepares your message locally. Connect a backend endpoint later for direct email sending.</p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <div class="floating-social" aria-label="Social links">
+    <a class="social-link" href="#" target="_blank" rel="noopener" aria-label="Facebook"><svg><use href="#icon-facebook"></use></svg></a>
+    <a class="social-link" href="#" target="_blank" rel="noopener" aria-label="Instagram"><svg><use href="#icon-instagram"></use></svg></a>
+    <a class="social-link" href="#" target="_blank" rel="noopener" aria-label="LinkedIn"><svg><use href="#icon-linkedin"></use></svg></a>
+    <a class="social-link" href="#" target="_blank" rel="noopener" aria-label="YouTube"><svg><use href="#icon-youtube"></use></svg></a>
+  </div>
+
+  <a href="#" class="floating-ai" title="pEc-XeL AI Assistant" aria-label="pEc-XeL AI Assistant" id="aiAssistantBtn">
+    <svg><use href="#icon-bolt"></use></svg>
+  </a>
+  <div id="aiAssistantModal" class="ai-modal" role="dialog" aria-modal="true" aria-labelledby="aiAssistantTitle" hidden>
+    <div class="ai-modal-overlay" data-close="true"></div>
+    <div class="ai-modal-content">
+      <button class="ai-modal-close" type="button" aria-label="Close" data-close="true">x</button>
+      <p class="eyebrow">pEc-XeL AI</p>
+      <h3 id="aiAssistantTitle">How can I help?</h3>
+      <div class="ai-modal-actions">
+        <a href="#quote" class="btn btn-ghost">Start a quote</a>
+        <a href="#services" class="btn btn-ghost">View services</a>
+        <a href="#vizixel" class="btn btn-ghost">Learn ViziXel</a>
+        <a href="#contact" class="btn btn-accent">Contact support</a>
+      </div>
+      <p class="tiny-note">This is ready for a future AI API connection.</p>
+    </div>
+  </div>
+
+  <a href="https://wa.me/265YOURNUMBER" class="floating-whatsapp" data-whatsapp-link target="_blank" rel="noopener" aria-label="WhatsApp Quick Chat">
+    <svg><use href="#icon-whatsapp"></use></svg>
+  </a>
+
+  <footer class="site-footer">
+    <p>Electrical is Passion. Electronics is Life.</p>
+    <p class="copyright">&copy; 2026 pEc-XeL Innovations &amp; Technology</p>
+    <div class="footer-links">
+      <a href="#services">Services</a>
+      <a href="#quote">Quote</a>
+      <a href="#projects">Projects</a>
+      <a href="store.html">Store</a>
+      <a href="#blog">Blog</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script src="effects.js"></script>
+</body>
+</html>

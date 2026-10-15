@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Donate | pEc-XeL Innovations &amp; Technology</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav>
+    <a class="logo" href="index.html" aria-label="pEc-XeL home">
+      <span class="brand-mark"><img src="images/pEc-XeL Logo.png" alt="" class="logo-img" /></span>
+      <span class="brand-copy"><span class="brand-text">pEc-XeL</span><span class="brand-line">Innovations &amp; Technology</span></span>
+    </a>
+    <ul data-nav-links>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="projects.html">Projects</a></li>
+      <li><a href="store.html">Store</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="blog.html">Blog</a></li>
+      <li><a href="donate.html" aria-current="page">Donate</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
+
+  <main class="page-wrap">
+    <h1 class="page-title">Support pEc-XeL</h1>
+    <p class="page-lead">Your donations help fund prototypes, testing, and training for the next generation.</p>
+
+    <div class="donate-grid">
+      <section class="content-card" aria-label="Donation content">
+        <div id="donateContent" class="loading">Loading donation details...</div>
+        <div id="error" class="error-box">Unable to load donation content.</div>
+      </section>
+
+      <aside class="donation-cards" aria-label="Donation methods">
+        <div class="donation-method-card">
+          <h3>Airtel Money</h3>
+          <div id="airtel" style="color:#cfe9ff; line-height:1.6;">
+            Add airtel money number/link in admin (donation post).
+          </div>
+        </div>
+
+        <div class="donation-method-card">
+          <h3>PayPal</h3>
+          <div id="paypal" style="color:#cfe9ff; line-height:1.6;">
+            Add PayPal link in admin (donation post).
+          </div>
+        </div>
+
+        <div class="donation-method-card">
+          <h3>Other Methods</h3>
+          <div id="other" style="color:#cfe9ff; line-height:1.6;">
+            Add MoMo / bank transfer details in admin (donation post).
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    function $(id){ return document.getElementById(id); }
+
+    function extractMethodText(html, label){
+      // Best-effort extraction: look for headings like "Airtel Money" and pull nearby text.
+      const div = document.createElement('div');
+      div.innerHTML = html;
+      const heading = Array.from(div.querySelectorAll('h1,h2,h3,b,strong')).find(el =>
+        String(el.textContent || '').toLowerCase().includes(label.toLowerCase())
+      );
+      if(!heading) return '';
+
+      // Collect next sibling nodes until next heading of same level group.
+      let out = '';
+      let node = heading;
+      const stopTags = new Set(['H1','H2','H3','B','STRONG']);
+      while(node && node.nextSibling){
+        const next = node.nextSibling;
+        if(next.nodeType === 1 && stopTags.has(next.tagName)) break;
+        if(next.nodeType === 3){
+          const t = next.textContent.trim();
+          if(t) out += t + ' ';
+        } else if(next.nodeType === 1){
+          const t = next.textContent.trim();
+          if(t) out += t + ' ';
+        }
+        node = next;
+        if(out.length > 500) break;
+      }
+      return out.trim();
+    }
+
+    async function loadDonations(){
+      try{
+        $('donateContent').textContent = 'Loading donation details...';
+        $('error').style.display = 'none';
+
+        const res = await fetch('/api/donations');
+        if(!res.ok){
+          const t = await res.text();
+          throw new Error(t || 'Failed to load');
+        }
+
+        const data = await res.json();
+        const donation = (data.donations && data.donations[0]) ? data.donations[0] : null;
+
+        if(!donation){
+          $('donateContent').textContent = 'No published donation content yet.';
+          return;
+        }
+
+        const html = donation.content_html || '';
+        $('donateContent').innerHTML = html;
+
+        // Populate method boxes if possible
+        const airtel = extractMethodText(html, 'Airtel');
+        const paypal = extractMethodText(html, 'PayPal');
+        const other = extractMethodText(html, 'MoMo') || extractMethodText(html, 'Mobile') || extractMethodText(html, 'Bank');
+
+        $('airtel').textContent = airtel || $('airtel').textContent;
+        $('paypal').textContent = paypal || $('paypal').textContent;
+        $('other').textContent = other || $('other').textContent;
+      }catch(e){
+        $('donateContent').textContent = '';
+        $('error').style.display = 'block';
+        $('error').textContent = 'Unable to load donation content. ' + String(e && e.message ? e.message : e);
+        console.error(e);
+      }
+    }
+
+    loadDonations();
+  </script>
+</body>
+</html>
+
