@@ -16,6 +16,9 @@
     .admin-access input,.admin-editor input,.admin-editor select,.admin-editor textarea,.settings-form input{width:100%;min-height:44px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:rgba(255,255,255,.06);color:var(--ink)}
     .admin-editor textarea{min-height:100px;resize:vertical}
     .admin-editor input[type=checkbox]{width:18px;min-height:18px;accent-color:var(--brand)}
+    .admin-editor input[type=file]{height:auto;min-height:48px;padding:8px}
+    .admin-image-preview{width:min(100%,360px);max-height:240px;object-fit:contain;border:1px solid var(--line);border-radius:var(--radius);background:rgba(0,0,0,.2)}
+    .admin-image-preview[hidden]{display:none}
     .admin-status{color:var(--muted);font-size:.92rem;align-self:center}
     .admin-status[data-tone=error]{color:#ff9292}.admin-status[data-tone=success]{color:var(--brand)}
     .admin-tabs{display:flex;gap:6px;overflow-x:auto;padding:0 0 12px;border-bottom:1px solid var(--line)}
@@ -73,7 +76,11 @@
           <label data-field="slug" hidden>Page address<input id="recordSlug" placeholder="Auto-generated from title"></label>
           <label data-field="category">Category<input id="recordCategory"></label>
           <label data-field="date" hidden>Publish date<input id="recordDate" type="date"></label>
-          <label data-field="image">Image URL or path<input id="recordImage" placeholder="images/products/item.jpg"></label>
+          <label data-field="image">Image URL or path<input id="recordImage" placeholder="https://... or images/products/item.jpg"></label>
+          <label data-field="image">Choose an image from your phone<input id="recordImageFile" type="file" accept="image/*"></label>
+          <p class="admin-note" data-field="image">Choose a photo from your library or camera. Images are uploaded to Cloudinary; save the entry to attach the image.</p>
+          <p class="admin-status" id="imageUploadStatus" role="status" aria-live="polite" hidden></p>
+          <img class="admin-image-preview" id="imagePreview" alt="Selected image preview" hidden>
           <label data-field="price_mwk">Price (MWK)<input id="recordPrice" type="number" min="0" step="1"></label>
           <label data-field="stock">Stock quantity<input id="recordStock" type="number" min="0" step="1"></label>
           <label data-field="position">Display order<input id="recordPosition" type="number" min="0" step="1" value="0"></label>
@@ -92,11 +99,17 @@
     <section class="admin-settings" id="settingsPanel" hidden><h2>Public site details</h2>
       <form class="settings-form" id="settingsForm">
         <label>Company name<input name="site_name" required></label><label>Brand descriptor<input name="brand_descriptor" required></label>
-        <label class="full">Tagline<input name="tagline"></label><label>WhatsApp number<input name="whatsapp_number" inputmode="tel" placeholder="265..." required></label>
-        <label>Email address<input name="contact_email" type="email"></label><label>Location<input name="location"></label><label>Working hours<input name="working_hours"></label>
+        <label class="full">Tagline<input name="tagline"></label><label>WhatsApp number<input name="whatsapp_number" inputmode="numeric" pattern="[0-9]{7,15}" maxlength="15" title="Enter 7 to 15 digits, including your country code, without spaces or a plus sign." placeholder="265..." required></label>
+        <label>Email address<input name="contact_email" type="email"></label>
+        <label>Location<input name="location"></label>
+        <label>Working hours<input name="working_hours"></label>
+        <label>Facebook page URL<input name="facebook_url" type="url" data-social-url placeholder="https://facebook.com/yourpage"></label>
+        <label>Instagram URL<input name="instagram_url" type="url" data-social-url placeholder="https://instagram.com/yourprofile"></label>
+        <label>LinkedIn URL<input name="linkedin_url" type="url" data-social-url placeholder="https://www.linkedin.com/company/your-company"></label>
+        <label>YouTube channel URL<input name="youtube_url" type="url" data-social-url placeholder="https://www.youtube.com/channel/..."></label>
         <div class="admin-form-actions full"><button class="btn btn-accent" type="submit">Save site details</button></div>
       </form>
-      <p class="admin-note">Use the full international WhatsApp number without spaces or the plus sign.</p>
+      <p class="admin-note">Use the full international WhatsApp number as digits only. Social links must be HTTPS URLs for the matching platform.</p>
     </section>
   </main>
   <script src="admin.js"></script>

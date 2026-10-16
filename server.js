@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 const express = require('express');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -115,7 +116,11 @@ const settingDefaults = {
   whatsapp_number: '265YOURNUMBER',
   contact_email: 'info@pecxel.com',
   location: 'Malawi',
-  working_hours: 'Monday to Saturday'
+  working_hours: 'Monday to Saturday',
+  facebook_url: '',
+  instagram_url: '',
+  linkedin_url: '',
+  youtube_url: ''
 };
 const insertSetting = db.prepare('INSERT OR IGNORE INTO site_settings (setting_key, setting_value) VALUES (?, ?)');
 Object.entries(settingDefaults).forEach(([key, value]) => insertSetting.run(key, value));
@@ -201,6 +206,30 @@ app.get('/api/pages/:slug', (req, res) => {
 
 app.get('/api/site-settings', (req, res) => {
   res.json({ settings: getSiteSettings() });
+});
+
+app.post('/api/admin/uploads/sign', requireAdmin, (req, res) => {
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  const apiKey = process.env.CLOUDINARY_API_KEY;
+  const apiSecret = process.env.CLOUDINARY_API_SECRET;
+  if (!cloudName || !apiKey || !apiSecret) {
+    return res.status(503).json({ error: 'Image uploads are not configured. Add the Cloudinary credentials to the server environment.' });
+  }
+
+  const params = {
+    allowed_formats: 'jpg,jpeg,png,webp,avif,heic,heif',
+    folder: 'pecxel-website',
+    timestamp: Math.floor(Date.now() / 1000)
+  };
+  const signatureBase = Object.keys(params)
+    .sort()
+    .map((key) => `${key}=${params[key]}`)
+    .join('&');
+  const signature = crypto.createHash('sha1')
+    .update(`${signatureBase}${apiSecret}`)
+    .digest('hex');
+
+  res.json({ cloudName, apiKey, ...params, signature });
 });
 
 app.get('/api/admin/catalog/:type', requireAdmin, (req, res) => {
@@ -537,4 +566,3 @@ app.listen(PORT, () => {
   console.log(`pecxel blog server running on http://localhost:${PORT}`);
   console.log('Website manager: /admin.html');
 });
-

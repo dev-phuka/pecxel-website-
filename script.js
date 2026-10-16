@@ -25,6 +25,33 @@
     return /^(https?:\/\/|\/|images\/)/i.test(source) ? escapeHtml(source) : '';
   }
 
+  function storeCategoryKey(value) {
+    const category = String(value || '').trim().toLowerCase();
+    if (/\b(phone|phones|smartphone|smartphones|mobile)\b/.test(category)) return 'phones';
+    if (/\b(laptop|laptops|computer|computers)\b/.test(category)) return 'computers';
+    if (category.includes('accessor')) return 'accessories';
+    if (category.includes('component') || category.includes('tool')) return 'components';
+    return category;
+  }
+
+  function applyStoreFilter(category) {
+    const items = Array.from(document.querySelectorAll('[data-store-item]'));
+    let visibleCount = 0;
+    items.forEach((item) => {
+      item.hidden = category !== 'all' && item.dataset.storeItem !== category;
+      if (!item.hidden) visibleCount += 1;
+    });
+    const emptyMessage = document.querySelector('[data-store-empty]');
+    if (emptyMessage) {
+      emptyMessage.hidden = visibleCount > 0;
+      emptyMessage.textContent = category === 'phones'
+        ? 'No phones or smartphones are listed right now.'
+        : category === 'all'
+          ? 'No products are listed right now.'
+          : 'No products are listed in this category right now.';
+    }
+  }
+
   function buildWhatsappLink(message) {
     return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message || '')}`;
   }
@@ -53,6 +80,21 @@
         const current = new URL(link.href);
         link.href = `https://wa.me/${WHATSAPP_NUMBER}${current.search}`;
       });
+
+      // Wire social links saved in site settings. Anchors should have data-social attribute matching the setting key.
+      document.querySelectorAll('[data-social]').forEach((el) => {
+        const key = el.dataset.social;
+        const url = settings[key];
+        if (url && typeof url === 'string' && url.trim()) {
+          el.href = url.trim();
+          if (!el.getAttribute('target')) el.target = '_blank';
+          if (!el.getAttribute('rel')) el.rel = 'noopener';
+        } else {
+          // leave placeholder fallback
+          el.href = '#';
+        }
+      });
+
     } catch (error) {
       return;
     }
@@ -66,23 +108,59 @@
       if (!grid) return;
       try {
         const response = await fetch(`/api/catalog/${type}s`);
-        if (!response.ok) return;
+        if (!response.ok) {
+          if (grid === storeGrid) {
+            grid.innerHTML = '<p class="store-empty">The store inventory is temporarily unavailable. Please try again later.</p>';
+          }
+          return;
+        }
         const data = await response.json();
-        if (!Array.isArray(data.items) || !data.items.length) return;
+        if (!Array.isArray(data.items)) {
+          if (grid === storeGrid) {
+            grid.innerHTML = '<p class="store-empty">The store inventory could not be loaded.</p>';
+          }
+          return;
+        }
+        if (!data.items.length && grid === storeGrid) {
+          grid.innerHTML = '<p class="store-empty" data-store-empty></p>';
+          applyStoreFilter(document.querySelector('[data-store-filter].active')?.dataset.storeFilter || 'all');
+          return;
+        }
+        if (!data.items.length) return;
         grid.innerHTML = data.items.map(makeCard).join('');
+        if (grid === storeGrid) {
+          grid.insertAdjacentHTML('beforeend', '<p class="store-empty" data-store-empty hidden></p>');
+          const selectedFilter = document.querySelector('[data-store-filter].active')?.dataset.storeFilter || 'all';
+          applyStoreFilter(selectedFilter);
+        }
       } catch (error) {
+        if (grid === storeGrid) {
+          grid.innerHTML = '<p class="store-empty">The store inventory is temporarily unavailable. Please try again later.</p>';
+        }
         return;
       }
     };
 
     await Promise.all([
       render('product', storeGrid, (item) => {
-        const category = escapeHtml(item.category || 'technology');
+        const categoryName = String(item.category || 'technology');
+        const category = escapeHtml(categoryName);
+        const categoryKey = escapeHtml(storeCategoryKey(categoryName));
         const interest = encodeURIComponent(item.name || 'Product enquiry');
         const image = safeImageSource(item.image);
-        const price = item.price_mwk === null ? 'Ask for current price' : `MWK ${Number(item.price_mwk).toLocaleString('en-US')}`;
-        const stock = item.stock === null ? 'Check availability' : `${Number(item.stock)} in stock`;
-        return `<article class="store-card" data-store-item="${category}"><a class="store-card-image" href="contact.html?interest=${interest}" aria-label="Enquire about ${escapeHtml(item.name)}">${image ? `<img src="${image}" alt="${escapeHtml(item.name)}" loading="lazy" decoding="async">` : ''}</a><div class="store-card-copy"><span class="panel-kicker">${category}</span><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.description)}</p><p class="store-price">${price} <span>${stock}</span></p><a class="text-link" href="contact.html?interest=${interest}">Ask about this product</a></div></article>`;
+        const price = item.price_mwk === null || item.price_mwk === undefined || item.price_mwk === ''
+          ? 'Contact for price'
+          : `MWK ${Number(item.price_mwk).toLocaleString('en-US')}`;
+        const stockCount = item.stock === null || item.stock === undefined || item.stock === ''
+          ? null
+          : Number(item.stock);
+        const stockLabel = stockCount === null || !Number.isFinite(stockCount)
+          ? 'Availability not listed'
+          : stockCount === 0
+            ? 'Out of stock'
+            : `${stockCount} in stock`;
+        const stockClass = stockCount === 0 ? 'out-of-stock' : stockCount > 0 ? 'in-stock' : 'stock-unknown';
+        return `<article class="store-card" data-store-item="${categoryKey}"><a class="store-card-image" href="contact.html?interest=${interest}" aria-label="Enquire about ${escapeHtml(item.name)}">${image ? `<img src="${image}" alt="${escapeHtml(item.name)}" loading="lazy" decoding="async">` : ''}</a><div class="store-card-copy"><span class="panel-kicker">${category}</span><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.description)}</p><p class="store-price">${price} <span class="stock-status ${stockClass}">${stockLabel}</span></p><a class="text-link" href="contact.html?interest=${interest}">Ask about this product</a></div></article>`;
       }),
       render('service', serviceGrid, (item) => {
         const category = escapeHtml(item.category || 'other');
@@ -229,9 +307,7 @@
           filter.classList.toggle('active', isActive);
           filter.setAttribute('aria-pressed', String(isActive));
         });
-        document.querySelectorAll('[data-store-item]').forEach((item) => {
-          item.hidden = category !== 'all' && item.dataset.storeItem !== category;
-        });
+        applyStoreFilter(category);
       });
     });
   }

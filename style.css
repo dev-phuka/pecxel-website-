@@ -1362,6 +1362,15 @@ textarea:focus{
   display:none;
 }
 
+.store-empty{
+  grid-column:1 / -1;
+  padding:24px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--muted);
+  text-align:center;
+}
+
 .store-card-image{
   display:block;
   aspect-ratio:4 / 3;
@@ -1413,6 +1422,14 @@ textarea:focus{
   color:var(--muted);
   font-size:.85rem;
   font-weight:700;
+}
+
+.store-card-copy .stock-status.in-stock{
+  color:var(--brand);
+}
+
+.store-card-copy .stock-status.out-of-stock{
+  color:var(--danger);
 }
 
 .store-card-copy .text-link{
@@ -1513,9 +1530,6 @@ textarea:focus{
     position:static;
   }
 
-  .floating-social{
-    display:none;
-  }
 }
 
 @media (max-width: 820px){
@@ -1619,8 +1633,34 @@ textarea:focus{
     flex-direction:column;
   }
 
+  .floating-social{
+    right:14px;
+    top:90px;
+    gap:6px;
+  }
+
+  .social-link{
+    width:38px;
+    height:38px;
+  }
+
+  .social-link svg{
+    width:20px;
+    height:20px;
+  }
+
   .floating-ai,
   .floating-whatsapp{
-    display:none;
+    bottom:14px;
+    width:50px;
+    height:50px;
+  }
+
+  .floating-ai{
+    left:14px;
+  }
+
+  .floating-whatsapp{
+    right:14px;
   }
 }

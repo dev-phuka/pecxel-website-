@@ -2,6 +2,7 @@
   const $ = (id) => document.getElementById(id);
   const state = { mode: 'products', records: [] };
   const tokenKey = 'pecxel_admin_token';
+  let imageUploadInProgress = false;
   const modes = {
     products: { title: 'Products', item: 'product', endpoint: '/api/admin/catalog/products', key: 'items', fields: ['name', 'category', 'image', 'price_mwk', 'stock', 'position', 'description', 'status'] },
     services: { title: 'Services', item: 'service', endpoint: '/api/admin/catalog/services', key: 'items', fields: ['name', 'category', 'image', 'position', 'description', 'status'] },
@@ -65,7 +66,93 @@
     $('recordPosition').value = '0';
     $('recordStatus').value = 'published';
     $('recordShowNav').checked = true;
+    $('imagePreview').hidden = true;
+    $('imagePreview').removeAttribute('src');
+    $('imageUploadStatus').hidden = true;
+    $('imageUploadStatus').textContent = '';
     setEditorFields();
+  }
+
+  function showImagePreview(source) {
+    const value = String(source || '').trim();
+    if (!/^(https?:\/\/|\/|images\/)/i.test(value)) {
+      $('imagePreview').hidden = true;
+      $('imagePreview').removeAttribute('src');
+      return;
+    }
+    $('imagePreview').src = value;
+    $('imagePreview').hidden = false;
+  }
+
+  async function uploadImage(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const acceptedExtension = /\.(jpe?g|png|webp|avif|heic|heif)$/i.test(file.name);
+    if ((!file.type.startsWith('image/') && !acceptedExtension) || file.size > 10 * 1024 * 1024) {
+      setStatus(file.size > 10 * 1024 * 1024
+        ? 'Choose an image smaller than 10 MB.'
+        : 'Choose a JPG, PNG, WebP, AVIF, or HEIC image.', 'error');
+      event.target.value = '';
+      return;
+    }
+
+    const uploadStatus = $('imageUploadStatus');
+    imageUploadInProgress = true;
+    event.target.disabled = true;
+    $('saveRecord').disabled = true;
+    $('resetRecord').disabled = true;
+    document.querySelectorAll('[data-admin-mode]').forEach((button) => { button.disabled = true; });
+    uploadStatus.hidden = false;
+    uploadStatus.dataset.tone = '';
+    uploadStatus.textContent = 'Uploading image...';
+    setStatus('Uploading image to Cloudinary...', '');
+
+    try {
+      const signedUpload = await apiRequest('/api/admin/uploads/sign', {
+        method: 'POST',
+        headers: authHeaders(true),
+        body: JSON.stringify({})
+      });
+      const body = new FormData();
+      body.append('file', file);
+      body.append('api_key', signedUpload.apiKey);
+      body.append('timestamp', String(signedUpload.timestamp));
+      body.append('folder', signedUpload.folder);
+      body.append('allowed_formats', signedUpload.allowed_formats);
+      body.append('signature', signedUpload.signature);
+
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${encodeURIComponent(signedUpload.cloudName)}/image/upload`,
+        { method: 'POST', body }
+      );
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error?.message || `Image upload failed (${response.status}).`);
+      }
+
+      const imageUrl = new URL(result.secure_url);
+      if (imageUrl.protocol !== 'https:' || imageUrl.hostname !== 'res.cloudinary.com') {
+        throw new Error('Cloudinary returned an unexpected image address.');
+      }
+      imageUrl.pathname = imageUrl.pathname.replace('/image/upload/', '/image/upload/f_auto,q_auto/');
+      $('recordImage').value = imageUrl.href;
+      showImagePreview(imageUrl.href);
+      uploadStatus.dataset.tone = 'success';
+      uploadStatus.textContent = 'Image uploaded. Save the entry to attach it.';
+      setStatus('Image uploaded. Save the entry to publish it with this image.', 'success');
+      event.target.value = '';
+    } catch (error) {
+      uploadStatus.dataset.tone = 'error';
+      uploadStatus.textContent = error.message;
+      setStatus(error.message, 'error');
+    } finally {
+      imageUploadInProgress = false;
+      event.target.disabled = false;
+      $('saveRecord').disabled = false;
+      $('resetRecord').disabled = false;
+      document.querySelectorAll('[data-admin-mode]').forEach((button) => { button.disabled = false; });
+    }
   }
 
   function itemName(record) {
@@ -167,6 +254,7 @@
     $('recordCategory').value = record.category || '';
     $('recordDate').value = record.date || '';
     $('recordImage').value = record.image || record.thumbnail || '';
+    showImagePreview($('recordImage').value);
     $('recordPrice').value = record.price_mwk ?? '';
     $('recordStock').value = record.stock ?? '';
     $('recordPosition').value = record.position ?? 0;
@@ -197,6 +285,10 @@
 
   async function saveRecord(event) {
     event.preventDefault();
+    if (imageUploadInProgress) {
+      setStatus('Wait for the image upload to finish before saving.', 'error');
+      return;
+    }
     const config = activeMode();
     const id = $('recordId').value;
     const base = state.mode === 'posts' || state.mode === 'donations'
@@ -239,7 +331,15 @@
 
   async function saveSettings(event) {
     event.preventDefault();
-    const settings = Object.fromEntries(new FormData($('settingsForm')).entries());
+    const form = $('settingsForm');
+    const invalidField = Array.from(form.querySelectorAll('[name]'))
+      .find((input) => !validateSettingField(input));
+    if (invalidField) {
+      invalidField.reportValidity();
+      setStatus('Check the highlighted contact or social link before saving.', 'error');
+      return;
+    }
+    const settings = Object.fromEntries(new FormData(form).entries());
     try {
       await apiRequest('/api/admin/settings', {
         method: 'PUT', headers: authHeaders(true), body: JSON.stringify({ settings })
@@ -250,10 +350,46 @@
     }
   }
 
+  function validateSettingField(input) {
+    let message = '';
+    const value = input.value.trim();
+
+    if (input.name === 'whatsapp_number' && value && !/^[0-9]{7,15}$/.test(value)) {
+      message = 'Enter 7 to 15 digits, including your country code, without spaces or a plus sign.';
+    } else if (input.hasAttribute('data-social-url') && value) {
+      const allowedDomains = {
+        facebook_url: ['facebook.com', 'fb.com'],
+        instagram_url: ['instagram.com'],
+        linkedin_url: ['linkedin.com'],
+        youtube_url: ['youtube.com', 'youtu.be']
+      };
+      try {
+        const url = new URL(value);
+        const host = url.hostname.toLowerCase();
+        const isAllowedDomain = (allowedDomains[input.name] || [])
+          .some((domain) => host === domain || host.endsWith(`.${domain}`));
+        if (url.protocol !== 'https:' || !isAllowedDomain) {
+          message = `Enter an HTTPS ${input.name.replace('_url', '')} link.`;
+        }
+      } catch (error) {
+        message = 'Enter a complete HTTPS social profile URL.';
+      }
+    }
+
+    input.setCustomValidity(message);
+    return !message;
+  }
+
+  $('settingsForm').querySelectorAll('[name]').forEach((input) => {
+    input.addEventListener('input', () => validateSettingField(input));
+  });
+
   $('connectAdmin').addEventListener('click', connect);
   $('refreshContent').addEventListener('click', connect);
   $('recordForm').addEventListener('submit', saveRecord);
   $('resetRecord').addEventListener('click', resetForm);
+  $('recordImageFile').addEventListener('change', uploadImage);
+  $('recordImage').addEventListener('input', (event) => showImagePreview(event.target.value));
   $('settingsForm').addEventListener('submit', saveSettings);
   document.querySelectorAll('[data-admin-mode]').forEach((button) => {
     button.addEventListener('click', () => setMode(button.dataset.adminMode));
