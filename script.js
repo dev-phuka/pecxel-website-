@@ -2,6 +2,8 @@
 
 (function () {
   let WHATSAPP_NUMBER = '265YOURNUMBER';
+  let selectedStoreCategory = null;
+  let storeCatalogLoaded = false;
 
   function $(id) {
     return document.getElementById(id);
@@ -43,12 +45,83 @@
     });
     const emptyMessage = document.querySelector('[data-store-empty]');
     if (emptyMessage) {
-      emptyMessage.hidden = visibleCount > 0;
+      emptyMessage.hidden = !storeCatalogLoaded || visibleCount > 0;
       emptyMessage.textContent = category === 'phones'
         ? 'No phones or smartphones are listed right now.'
         : category === 'all'
           ? 'No products are listed right now.'
           : 'No products are listed in this category right now.';
+    }
+  }
+
+  function showStoreCategory(category, updateHistory, scrollToListings) {
+    const categoryNames = {
+      phones: 'Phones & smartphones',
+      computers: 'Laptops & computers',
+      accessories: 'Electronic accessories',
+      components: 'Components & tools'
+    };
+    if (!categoryNames[category]) return;
+
+    selectedStoreCategory = category;
+    document.querySelector('[data-store-categories]').hidden = true;
+    document.querySelector('#storeListings').hidden = false;
+    document.querySelector('#storeListingTitle').textContent = categoryNames[category];
+    applyStoreFilter(category);
+
+    if (updateHistory) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('category', category);
+      window.history.pushState({ storeCategory: category }, '', url);
+    }
+    if (scrollToListings) {
+      document.querySelector('#storeListings').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  function showStoreCategories(updateHistory) {
+    selectedStoreCategory = null;
+    document.querySelector('[data-store-categories]').hidden = false;
+    document.querySelector('#storeListings').hidden = true;
+    if (updateHistory) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('category');
+      window.history.pushState({}, '', url);
+    }
+  }
+
+  async function shareStoreCategory(button) {
+    const category = button.dataset.shareCategory;
+    const categoryLink = document.querySelector(`[data-open-store-category="${category}"]`);
+    const categoryTitle = categoryLink?.querySelector('h3')?.textContent.trim();
+    const status = document.querySelector('[data-store-share-status]');
+    if (!categoryLink || !categoryTitle || !status) return;
+
+    const shareData = {
+      title: `${categoryTitle} | pEc-XeL Store`,
+      text: `Browse ${categoryTitle} at the pEc-XeL Store.`,
+      url: new URL(categoryLink.getAttribute('href'), window.location.href).href
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        status.textContent = 'Category link shared.';
+      } else if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareData.url);
+        status.textContent = 'Category link copied. Paste it into your social media post.';
+      } else {
+        const copiedUrl = window.prompt('Copy this category link to share it:', shareData.url);
+        status.textContent = copiedUrl
+          ? 'Copy the link to share this category.'
+          : 'Sharing cancelled.';
+      }
+      status.hidden = false;
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        status.textContent = 'Unable to share the link. Please open the category and copy its address.';
+        status.hidden = false;
+      }
     }
   }
 
@@ -110,6 +183,7 @@
         const response = await fetch(`/api/catalog/${type}s`);
         if (!response.ok) {
           if (grid === storeGrid) {
+            storeCatalogLoaded = true;
             grid.innerHTML = '<p class="store-empty">The store inventory is temporarily unavailable. Please try again later.</p>';
           }
           return;
@@ -117,24 +191,27 @@
         const data = await response.json();
         if (!Array.isArray(data.items)) {
           if (grid === storeGrid) {
+            storeCatalogLoaded = true;
             grid.innerHTML = '<p class="store-empty">The store inventory could not be loaded.</p>';
           }
           return;
         }
         if (!data.items.length && grid === storeGrid) {
+          storeCatalogLoaded = true;
           grid.innerHTML = '<p class="store-empty" data-store-empty></p>';
-          applyStoreFilter(document.querySelector('[data-store-filter].active')?.dataset.storeFilter || 'all');
+          applyStoreFilter(selectedStoreCategory || 'all');
           return;
         }
         if (!data.items.length) return;
+        if (grid === storeGrid) storeCatalogLoaded = true;
         grid.innerHTML = data.items.map(makeCard).join('');
         if (grid === storeGrid) {
           grid.insertAdjacentHTML('beforeend', '<p class="store-empty" data-store-empty hidden></p>');
-          const selectedFilter = document.querySelector('[data-store-filter].active')?.dataset.storeFilter || 'all';
-          applyStoreFilter(selectedFilter);
+          if (selectedStoreCategory) applyStoreFilter(selectedStoreCategory);
         }
       } catch (error) {
         if (grid === storeGrid) {
+          storeCatalogLoaded = true;
           grid.innerHTML = '<p class="store-empty">The store inventory is temporarily unavailable. Please try again later.</p>';
         }
         return;
@@ -296,20 +373,33 @@
   }
 
   function initStoreFilters() {
-    const filters = Array.from(document.querySelectorAll('[data-store-filter]'));
-    if (!filters.length || !document.querySelector('[data-store-grid]')) return;
+    const categoryGrid = document.querySelector('[data-store-categories]');
+    const listings = document.querySelector('#storeListings');
+    if (!categoryGrid || !listings) return;
 
-    filters.forEach((button) => {
-      button.addEventListener('click', () => {
-        const category = button.dataset.storeFilter || 'all';
-        filters.forEach((filter) => {
-          const isActive = filter === button;
-          filter.classList.toggle('active', isActive);
-          filter.setAttribute('aria-pressed', String(isActive));
-        });
-        applyStoreFilter(category);
-      });
+    categoryGrid.addEventListener('click', (event) => {
+      const shareButton = event.target.closest('[data-share-category]');
+      if (shareButton) {
+        event.preventDefault();
+        event.stopPropagation();
+        shareStoreCategory(shareButton);
+        return;
+      }
+      const button = event.target.closest('[data-open-store-category]');
+      if (!button) return;
+      event.preventDefault();
+      showStoreCategory(button.dataset.openStoreCategory, true, true);
     });
+    document.querySelector('[data-store-back]').addEventListener('click', () => showStoreCategories(true));
+
+    window.addEventListener('popstate', () => {
+      const category = new URLSearchParams(window.location.search).get('category');
+      if (category) showStoreCategory(category, false, false);
+      else showStoreCategories(false);
+    });
+
+    const initialCategory = new URLSearchParams(window.location.search).get('category');
+    if (initialCategory) showStoreCategory(initialCategory, false, false);
   }
 
   function initIntentLinks() {

@@ -5,6 +5,9 @@
   - Dynamic Blog preview via `GET /api/posts`
   - Dynamic Donation preview via `GET /api/donations`
   - Proper Donate/Sponsor/Mentor links
+- Store (`store.html`)
+  - Category cards open filtered live product listings with price and stock status
+  - Category share buttons use the device share sheet or copy a shareable link
 - Blog renderer (`post.html`)
   - Loads post by `post.html?slug=...` via `GET /api/posts/:slug`
 - Donations page (`donate.html`)
