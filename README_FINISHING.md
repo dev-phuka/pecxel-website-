@@ -18,7 +18,12 @@
   - Blog posts and donation entries: create, edit, publish/draft, and remove
   - Custom pages: create, edit, choose whether to show in navigation, and remove
   - Site settings: edit brand descriptor, tagline, WhatsApp, email, location, and hours
+  - Enquiry analytics: review anonymous interaction counts for the last 7 and 30 days
   - Access protected by the `BLOG_ADMIN_TOKEN` from the local `.env` file
+- Performance and measurement
+  - The homepage records allow-listed interaction counts in SQLite without storing contact details, IP addresses, page URLs, or visitor identifiers.
+  - Counts are available in Website Manager and are retained for up to 365 days.
+  - The hero video uses an optimized desktop asset and a lightweight poster; it does not autoplay on small screens, reduced-motion settings, or data-saving connections.
 
 ## Backend API (summary)
 - `GET /api/catalog/:type`
@@ -37,6 +42,8 @@
 - `/api/admin/pages` (GET, POST)
 - `/api/admin/pages/:id` (PUT, DELETE)
 - `/api/admin/settings` (GET, PUT)
+- `POST /api/analytics/events`
+- `GET /api/admin/analytics`
 
 ## Image uploads
 Product and content images are uploaded directly from the Website Manager to Cloudinary using a short-lived signature created by the server. The Cloudinary API secret stays on the server and must never be put in browser code.

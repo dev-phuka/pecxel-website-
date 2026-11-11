@@ -1,7 +1,7 @@
 // Homepage interactions and dynamic previews.
 
 (function () {
-  let WHATSAPP_NUMBER = '265YOURNUMBER';
+  let WHATSAPP_NUMBER = '265887775776';
   let selectedStoreCategory = null;
   let storeCatalogLoaded = false;
 
@@ -25,6 +25,83 @@
   function safeImageSource(value) {
     const source = String(value || '').trim();
     return /^(https?:\/\/|\/|images\/)/i.test(source) ? escapeHtml(source) : '';
+  }
+
+  function trackEvent(eventName) {
+    const payload = JSON.stringify({ event: eventName });
+    if (navigator.sendBeacon && navigator.sendBeacon('/api/analytics/events', new Blob([payload], { type: 'application/json' }))) {
+      return;
+    }
+    fetch('/api/analytics/events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: payload,
+      keepalive: true
+    }).catch((error) => console.warn('Unable to record website interaction.', error));
+  }
+
+  function initAnalytics() {
+    const validEvents = new Set([
+      'quote_cta_click',
+      'whatsapp_click',
+      'donation_click',
+      'product_enquiry_click',
+      'contact_message_prepared',
+      'ai_assistant_open'
+    ]);
+
+    document.addEventListener('click', (event) => {
+      const target = event.target instanceof Element ? event.target : null;
+      const link = target && target.closest('a');
+      if (!link) return;
+
+      let eventName = link.dataset.track || '';
+      const href = link.getAttribute('href') || '';
+      if (!eventName && /^https:\/\/wa\.me\//i.test(href)) eventName = 'whatsapp_click';
+      if (!eventName && (href.includes('donate.html') || href.includes('#donate'))) eventName = 'donation_click';
+      if (!eventName && href.includes('contact.html?interest=')) eventName = 'product_enquiry_click';
+      if (!eventName && href.includes('#quote')) eventName = 'quote_cta_click';
+      if (validEvents.has(eventName)) trackEvent(eventName);
+    });
+  }
+
+  function initHeroMedia() {
+    const video = document.querySelector('.hero-video');
+    if (!video) return;
+
+    const toggle = document.querySelector('[data-hero-video-toggle]');
+    const label = toggle && toggle.querySelector('[data-video-toggle-label]');
+    const setPlaybackState = (isPaused) => {
+      if (!toggle) return;
+      toggle.setAttribute('aria-pressed', String(isPaused));
+      toggle.setAttribute('aria-label', isPaused ? 'Play background video' : 'Pause background video');
+      if (label) label.textContent = isPaused ? 'Play video' : 'Pause video';
+    };
+
+    if (toggle) {
+      toggle.addEventListener('click', () => {
+        if (video.paused) {
+          video.play().then(() => setPlaybackState(false)).catch((error) => {
+            console.warn('Unable to play the hero video.', error);
+          });
+        } else {
+          video.pause();
+          setPlaybackState(true);
+        }
+      });
+    }
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const saveData = Boolean(navigator.connection && navigator.connection.saveData);
+    if (reducedMotion || saveData) {
+      setPlaybackState(true);
+      return;
+    }
+
+    video.play().then(() => setPlaybackState(false)).catch((error) => {
+      setPlaybackState(true);
+      if (error.name !== 'NotAllowedError') console.warn('Unable to start the hero video.', error);
+    });
   }
 
   function storeCategoryKey(value) {
@@ -98,8 +175,8 @@
     if (!categoryLink || !categoryTitle || !status) return;
 
     const shareData = {
-      title: `${categoryTitle} | pEc-XeL Store`,
-      text: `Browse ${categoryTitle} at the pEc-XeL Store.`,
+      title: `${categoryTitle} | pEcXeL Store`,
+      text: `Browse ${categoryTitle} at the pEcXeL Store.`,
       url: new URL(categoryLink.getAttribute('href'), window.location.href).href
     };
 
@@ -135,7 +212,7 @@
       if (!response.ok) return;
       const data = await response.json();
       const settings = data.settings || {};
-      const companyName = settings.site_name || 'pEc-XeL';
+      const companyName = settings.site_name || 'pEcXeL';
       const descriptor = settings.brand_descriptor || 'Innovations & Technology';
       WHATSAPP_NUMBER = settings.whatsapp_number || WHATSAPP_NUMBER;
       document.querySelectorAll('.brand-text').forEach((element) => { element.textContent = companyName; });
@@ -143,11 +220,23 @@
         if (element.textContent !== 'Website Manager') element.textContent = descriptor;
       });
       document.querySelectorAll('.site-footer p').forEach((element) => {
-        if (element.textContent.trim().startsWith('pEc-XeL')) element.textContent = `${companyName} ${descriptor}`;
+        if (element.textContent.trim().startsWith('pEcXeL')) element.textContent = `${companyName} ${descriptor}`;
       });
       document.querySelectorAll('[data-site-setting]').forEach((element) => {
         const value = settings[element.dataset.siteSetting];
         if (value) element.textContent = value;
+      });
+      document.querySelectorAll('[data-contact-email]').forEach((element) => {
+        const email = settings.contact_email;
+        if (typeof email === 'string' && email.trim()) element.href = `mailto:${email.trim()}`;
+      });
+      document.querySelectorAll('[data-contact-phone]').forEach((element) => {
+        const phoneDigits = String(WHATSAPP_NUMBER).replace(/\D/g, '');
+        if (!phoneDigits) return;
+        element.href = `tel:+${phoneDigits}`;
+        element.textContent = phoneDigits.startsWith('265') && phoneDigits.length === 12
+          ? `+265 ${phoneDigits.slice(3, 6)} ${phoneDigits.slice(6, 9)} ${phoneDigits.slice(9)}`
+          : `+${phoneDigits}`;
       });
       document.querySelectorAll('a[href^="https://wa.me/"]').forEach((link) => {
         const current = new URL(link.href);
@@ -237,7 +326,7 @@
             ? 'Out of stock'
             : `${stockCount} in stock`;
         const stockClass = stockCount === 0 ? 'out-of-stock' : stockCount > 0 ? 'in-stock' : 'stock-unknown';
-        return `<article class="store-card" data-store-item="${categoryKey}"><a class="store-card-image" href="contact.html?interest=${interest}" aria-label="Enquire about ${escapeHtml(item.name)}">${image ? `<img src="${image}" alt="${escapeHtml(item.name)}" loading="lazy" decoding="async">` : ''}</a><div class="store-card-copy"><span class="panel-kicker">${category}</span><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.description)}</p><p class="store-price">${price} <span class="stock-status ${stockClass}">${stockLabel}</span></p><a class="text-link" href="contact.html?interest=${interest}">Ask about this product</a></div></article>`;
+        return `<article class="store-card" data-store-item="${categoryKey}"><a class="store-card-image" href="contact.html?interest=${interest}" data-track="product_enquiry_click" aria-label="Enquire about ${escapeHtml(item.name)}">${image ? `<img src="${image}" alt="${escapeHtml(item.name)}" loading="lazy" decoding="async">` : ''}</a><div class="store-card-copy"><span class="panel-kicker">${category}</span><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.description)}</p><p class="store-price">${price} <span class="stock-status ${stockClass}">${stockLabel}</span></p><a class="text-link" href="contact.html?interest=${interest}" data-track="product_enquiry_click">Ask about this product</a></div></article>`;
       }),
       render('service', serviceGrid, (item) => {
         const category = escapeHtml(item.category || 'other');
@@ -255,27 +344,45 @@
     initImageFallbacks();
   }
 
-  async function initCustomNavigation() {
-    const navigationLists = document.querySelectorAll('[data-nav-links]');
-    if (!navigationLists.length) return;
+  async function initFeaturedProducts() {
+    const grid = document.querySelector('[data-featured-products]');
+    if (!grid) return;
+
     try {
-      const response = await fetch('/api/pages');
-      if (!response.ok) return;
+      const response = await fetch('/api/catalog/products');
+      if (!response.ok) throw new Error('Unable to load featured products.');
       const data = await response.json();
-      (data.pages || []).forEach((page) => {
-        navigationLists.forEach((list) => {
-          if (list.querySelector(`[data-custom-page="${CSS.escape(page.slug)}"]`)) return;
-          const item = document.createElement('li');
-          const link = document.createElement('a');
-          link.dataset.customPage = page.slug;
-          link.href = `page.html?slug=${encodeURIComponent(page.slug)}`;
-          link.textContent = page.title;
-          item.append(link);
-          list.append(item);
-        });
-      });
+      if (!Array.isArray(data.items)) throw new Error('Featured product data is invalid.');
+      if (!data.items.length) {
+        grid.innerHTML = '<p class="store-empty">No products are currently listed. Visit the store or contact us to ask about availability.</p>';
+        return;
+      }
+
+      grid.innerHTML = data.items.slice(0, 3).map((item) => {
+        const interest = encodeURIComponent(item.name || 'Product enquiry');
+        const image = safeImageSource(item.image);
+        const category = escapeHtml(item.category || 'Technology');
+        const price = item.price_mwk === null || item.price_mwk === undefined || item.price_mwk === ''
+          ? 'Contact for price'
+          : `MWK ${Number(item.price_mwk).toLocaleString('en-US')}`;
+        const stockCount = item.stock === null || item.stock === undefined || item.stock === ''
+          ? null
+          : Number(item.stock);
+        const stockLabel = stockCount === null || !Number.isFinite(stockCount)
+          ? 'Availability not listed'
+          : stockCount === 0
+            ? 'Out of stock'
+            : `${stockCount} in stock`;
+        const stockClass = stockCount === 0 ? 'out-of-stock' : stockCount > 0 ? 'in-stock' : 'stock-unknown';
+        const imageMarkup = image
+          ? `<img src="${image}" alt="${escapeHtml(item.name)}" loading="lazy" decoding="async">`
+          : '';
+        return `<article class="store-card"><div class="store-card-image">${imageMarkup}</div><div class="store-card-copy"><span class="panel-kicker">${category}</span><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.description)}</p><p class="store-price">${price} <span class="stock-status ${stockClass}">${stockLabel}</span></p><a class="text-link" href="contact.html?interest=${interest}" data-track="product_enquiry_click">Ask to order <span aria-hidden="true">→</span></a></div></article>`;
+      }).join('');
+      initImageFallbacks();
     } catch (error) {
-      return;
+      console.error('Unable to load featured products.', error);
+      grid.innerHTML = '<p class="store-empty">Featured products are temporarily unavailable. Please visit the store or contact us for current availability.</p>';
     }
   }
 
@@ -297,7 +404,7 @@
       title.textContent = data.page.title;
       summary.textContent = data.page.summary;
       body.textContent = data.page.body;
-      document.title = `${data.page.title} | pEc-XeL Innovations & Technology`;
+      document.title = `${data.page.title} | pEcXeL Innovations & Technology`;
     } catch (error) {
       title.textContent = 'Page unavailable';
       summary.textContent = '';
@@ -412,7 +519,7 @@
         const intent = link.getAttribute('data-intent') || '';
         if (requestType && intent) requestType.value = closestRequestType(intent);
         if (message && intent && !message.value.trim()) {
-          message.value = `Hello pEc-XeL, I would like help with: ${intent}.`;
+          message.value = `Hello pEcXeL, I would like help with: ${intent}.`;
         }
         if (quoteService && intent) {
           const next = quoteValueFromIntent(intent);
@@ -518,7 +625,7 @@
       summaryEl.textContent = `${label}, ${complexity.toLowerCase()} complexity, ${timeline.toLowerCase()} timeline.`;
 
       const message = [
-        'Hello pEc-XeL, I would like an estimate.',
+        'Hello pEcXeL, I would like an estimate.',
         `Service: ${label}`,
         `Complexity: ${complexity}`,
         `Timeline: ${timeline}`,
@@ -550,7 +657,7 @@
     const interest = new URLSearchParams(window.location.search).get('interest');
     const messageField = form.elements.namedItem('message');
     if (interest && messageField && !messageField.value) {
-      messageField.value = `Hello pEc-XeL, I would like information about ${interest}.`;
+      messageField.value = `Hello pEcXeL, I would like information about ${interest}.`;
     }
 
     function updateLink() {
@@ -561,7 +668,7 @@
       const message = safeText(data.get('message')).trim();
 
       const body = [
-        'Hello pEc-XeL, I would like assistance.',
+        'Hello pEcXeL, I would like assistance.',
         name ? `Name: ${name}` : '',
         email ? `Email: ${email}` : '',
         type ? `Request: ${type}` : '',
@@ -574,6 +681,7 @@
     form.addEventListener('input', updateLink);
     form.addEventListener('submit', (event) => {
       event.preventDefault();
+      trackEvent('contact_message_prepared');
       updateLink();
       if (status) status.textContent = 'Message prepared. Use Open WhatsApp to send it.';
     });
@@ -735,6 +843,8 @@
   }
 
   ready(() => {
+    initAnalytics();
+    initHeroMedia();
     initNav();
     initAiModal();
     initServiceFilters();
@@ -746,7 +856,7 @@
     initWelcomeToast();
     initSiteSettings();
     initPublicCatalog();
-    initCustomNavigation();
+    initFeaturedProducts();
     initCustomPage();
     loadHomepageDynamics();
   });

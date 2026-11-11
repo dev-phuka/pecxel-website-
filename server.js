@@ -82,6 +82,13 @@ db.exec(`
     setting_key TEXT PRIMARY KEY,
     setting_value TEXT NOT NULL
   );
+
+  CREATE TABLE IF NOT EXISTS analytics_daily (
+    event_date TEXT NOT NULL,
+    event_name TEXT NOT NULL,
+    event_count INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (event_date, event_name)
+  );
 `);
 
 const catalogSeed = [
@@ -110,11 +117,11 @@ catalogSeed.forEach((item, index) => {
 });
 
 const settingDefaults = {
-  site_name: 'pEc-XeL',
+  site_name: 'pEcXeL',
   brand_descriptor: 'Innovations & Technology',
   tagline: 'Electrical is Passion. Electronics is Life.',
-  whatsapp_number: '265YOURNUMBER',
-  contact_email: 'info@pecxel.com',
+  whatsapp_number: '265887775776',
+  contact_email: 'pecxelinnovations@gmail.com',
   location: 'Malawi',
   working_hours: 'Monday to Saturday',
   facebook_url: '',
@@ -124,6 +131,12 @@ const settingDefaults = {
 };
 const insertSetting = db.prepare('INSERT OR IGNORE INTO site_settings (setting_key, setting_value) VALUES (?, ?)');
 Object.entries(settingDefaults).forEach(([key, value]) => insertSetting.run(key, value));
+db.prepare('UPDATE site_settings SET setting_value = ? WHERE setting_key = ? AND setting_value = ?')
+  .run(settingDefaults.site_name, 'site_name', 'pEc-XeL');
+db.prepare('UPDATE site_settings SET setting_value = ? WHERE setting_key = ? AND setting_value = ?')
+  .run(settingDefaults.whatsapp_number, 'whatsapp_number', '265YOURNUMBER');
+db.prepare('UPDATE site_settings SET setting_value = ? WHERE setting_key = ? AND setting_value = ?')
+  .run(settingDefaults.contact_email, 'contact_email', 'info@pecxel.com');
 
 // ---------- Helpers ----------
 function requireAdmin(req, res, next) {
@@ -159,6 +172,14 @@ function generateSlug(title) {
 
 const catalogTypes = new Set(['product', 'service', 'project']);
 const settingKeys = new Set(Object.keys(settingDefaults));
+const analyticsEventLabels = {
+  quote_cta_click: 'Quote call-to-action',
+  whatsapp_click: 'WhatsApp click',
+  donation_click: 'Donation page/support click',
+  product_enquiry_click: 'Product enquiry click',
+  contact_message_prepared: 'Contact message prepared',
+  ai_assistant_open: 'AI assistant opened'
+};
 
 function validCatalogType(type) {
   return catalogTypes.has(String(type || '').toLowerCase());
@@ -176,6 +197,39 @@ function getSiteSettings() {
       .map((row) => [row.setting_key, row.setting_value])
   );
 }
+
+app.post('/api/analytics/events', (req, res) => {
+  const eventName = req.body && req.body.event;
+  if (typeof eventName !== 'string' || !Object.hasOwn(analyticsEventLabels, eventName)) {
+    return res.status(400).json({ error: 'Unsupported analytics event' });
+  }
+
+  const eventDate = nowIso().slice(0, 10);
+  db.prepare(
+    `INSERT INTO analytics_daily (event_date, event_name, event_count)
+     VALUES (?, ?, 1)
+     ON CONFLICT(event_date, event_name) DO UPDATE SET event_count = event_count + 1`
+  ).run(eventDate, eventName);
+  db.prepare("DELETE FROM analytics_daily WHERE event_date < date('now', '-365 days')").run();
+  res.status(204).end();
+});
+
+app.get('/api/admin/analytics', requireAdmin, (req, res) => {
+  const counts = db.prepare(
+    `SELECT event_name,
+       SUM(CASE WHEN event_date >= date('now', '-6 days') THEN event_count ELSE 0 END) AS clicks_7d,
+       SUM(CASE WHEN event_date >= date('now', '-29 days') THEN event_count ELSE 0 END) AS clicks_30d
+     FROM analytics_daily
+     WHERE event_date >= date('now', '-29 days')
+     GROUP BY event_name`
+  ).all();
+  const countsByName = new Map(counts.map((row) => [row.event_name, row]));
+  const events = Object.entries(analyticsEventLabels).map(([name, label]) => {
+    const row = countsByName.get(name);
+    return { name, label, clicks_7d: row ? row.clicks_7d : 0, clicks_30d: row ? row.clicks_30d : 0 };
+  });
+  res.json({ events });
+});
 
 app.get('/api/catalog/:type', (req, res) => {
   const type = String(req.params.type || '').replace(/s$/, '').toLowerCase();

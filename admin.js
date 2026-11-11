@@ -210,6 +210,15 @@
     }
   }
 
+  async function loadAnalytics() {
+    $('analyticsRows').innerHTML = '<tr><td colspan="3">Loading...</td></tr>';
+    const data = await apiRequest('/api/admin/analytics', { headers: authHeaders(false) });
+    if (!Array.isArray(data.events)) throw new Error('Analytics data is unavailable.');
+    $('analyticsRows').innerHTML = data.events.map((event) =>
+      `<tr><td>${escapeHtml(event.label)}</td><td>${Number(event.clicks_7d).toLocaleString('en-US')}</td><td>${Number(event.clicks_30d).toLocaleString('en-US')}</td></tr>`
+    ).join('');
+  }
+
   async function connect() {
     const token = $('adminToken').value.trim();
     if (!token) {
@@ -220,6 +229,7 @@
     setStatus('Connecting...', '');
     try {
       if (state.mode === 'settings') await loadSettings();
+      else if (state.mode === 'analytics') await loadAnalytics();
       else await loadRecords();
       setStatus('Connected. Changes save to the website database.', 'success');
     } catch (error) {
@@ -228,15 +238,17 @@
   }
 
   function setMode(mode) {
-    if (!modes[mode] && mode !== 'settings') return;
+    if (!modes[mode] && mode !== 'settings' && mode !== 'analytics') return;
     state.mode = mode;
     document.querySelectorAll('[data-admin-mode]').forEach((button) => {
       button.setAttribute('aria-selected', String(button.dataset.adminMode === mode));
     });
     const isSettings = mode === 'settings';
-    $('contentPanel').hidden = isSettings;
+    const isAnalytics = mode === 'analytics';
+    $('contentPanel').hidden = isSettings || isAnalytics;
     $('settingsPanel').hidden = !isSettings;
-    if (!isSettings) {
+    $('analyticsPanel').hidden = !isAnalytics;
+    if (!isSettings && !isAnalytics) {
       setEditorFields();
       resetForm();
     }
@@ -386,6 +398,7 @@
 
   $('connectAdmin').addEventListener('click', connect);
   $('refreshContent').addEventListener('click', connect);
+  $('refreshAnalytics').addEventListener('click', connect);
   $('recordForm').addEventListener('submit', saveRecord);
   $('resetRecord').addEventListener('click', resetForm);
   $('recordImageFile').addEventListener('change', uploadImage);

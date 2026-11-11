@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
-  <title>Website Manager | pEc-XeL</title>
+  <title>Website Manager | pEcXeL</title>
   <link rel="stylesheet" href="style.css">
   <style>
     .admin-shell{width:min(1360px,calc(100% - 40px));margin:0 auto;padding:116px 0 64px}
@@ -39,13 +39,14 @@
     .admin-check[hidden]{display:none!important}
     .admin-settings{padding:24px 0}.settings-form{max-width:760px;grid-template-columns:repeat(2,minmax(0,1fr))}
     .settings-form .full{grid-column:1/-1}.admin-note{font-size:.88rem}
+    .analytics-panel{padding:24px 0}.analytics-panel[hidden]{display:none}.analytics-panel h2{font-size:1.25rem;margin-bottom:8px}
     @media(max-width:900px){.admin-panel{grid-template-columns:1fr}}
     @media(max-width:620px){.admin-shell{width:calc(100% - 28px);padding-top:100px}.admin-access{grid-template-columns:1fr}.settings-form{grid-template-columns:1fr}.settings-form .full{grid-column:auto}.admin-form-actions{flex-direction:column}.admin-form-actions .btn{width:100%}}
   </style>
 </head>
 <body>
   <header class="site-header"><nav class="nav-shell" aria-label="Admin navigation">
-    <a class="brand" href="index.html" aria-label="pEc-XeL home"><span class="brand-mark"><img src="images/pEc-XeL Logo.png" alt="" class="logo-img"></span><span class="brand-copy"><span class="brand-text">pEc-XeL</span><span class="brand-line">Website Manager</span></span></a>
+    <a class="brand" href="index.html" aria-label="pEcXeL home"><span class="brand-mark"><img src="images/pEc-XeL Logo.png" alt="" class="logo-img"></span><span class="brand-copy"><span class="brand-text">pEcXeL</span><span class="brand-line">Website Manager</span></span></a>
     <a class="btn btn-ghost" href="index.html">View website</a>
   </nav></header>
   <main class="admin-shell">
@@ -63,6 +64,7 @@
       <button class="admin-tab" type="button" data-admin-mode="donations" aria-selected="false">Donations</button>
       <button class="admin-tab" type="button" data-admin-mode="pages" aria-selected="false">Custom pages</button>
       <button class="admin-tab" type="button" data-admin-mode="settings" aria-selected="false">Site settings</button>
+      <button class="admin-tab" type="button" data-admin-mode="analytics" aria-selected="false">Enquiry analytics</button>
     </nav>
     <section class="admin-panel" id="contentPanel">
       <div><div class="admin-panel-head"><h2 id="listTitle">Products</h2><button class="btn btn-outline" id="refreshContent" type="button">Refresh</button></div>
@@ -110,6 +112,16 @@
         <div class="admin-form-actions full"><button class="btn btn-accent" type="submit">Save site details</button></div>
       </form>
       <p class="admin-note">Use the full international WhatsApp number as digits only. Social links must be HTTPS URLs for the matching platform.</p>
+    </section>
+    <section class="analytics-panel" id="analyticsPanel" hidden aria-labelledby="analyticsTitle">
+      <div class="admin-panel-head"><h2 id="analyticsTitle">Website enquiry interactions</h2><button class="btn btn-outline" id="refreshAnalytics" type="button">Refresh</button></div>
+      <p class="admin-note">Anonymous event totals only—no names, messages, page URLs, IP addresses, or visitor profiles are stored. Counts are retained for up to 365 days.</p>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Interaction</th><th>Last 7 days</th><th>Last 30 days</th></tr></thead>
+          <tbody id="analyticsRows"><tr><td colspan="3">Connect to view interaction totals.</td></tr></tbody>
+        </table>
+      </div>
     </section>
   </main>
   <script src="admin.js"></script>
