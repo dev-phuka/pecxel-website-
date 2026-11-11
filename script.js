@@ -213,7 +213,7 @@
       const data = await response.json();
       const settings = data.settings || {};
       const companyName = settings.site_name || 'pEcXeL';
-      const descriptor = settings.brand_descriptor || 'Innovations & Technology';
+      const descriptor = settings.brand_descriptor || 'Innovations & Technologies';
       WHATSAPP_NUMBER = settings.whatsapp_number || WHATSAPP_NUMBER;
       document.querySelectorAll('.brand-text').forEach((element) => { element.textContent = companyName; });
       document.querySelectorAll('.brand-line').forEach((element) => {

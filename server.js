@@ -118,7 +118,7 @@ catalogSeed.forEach((item, index) => {
 
 const settingDefaults = {
   site_name: 'pEcXeL',
-  brand_descriptor: 'Innovations & Technology',
+  brand_descriptor: 'Innovations & Technologies',
   tagline: 'Electrical is Passion. Electronics is Life.',
   whatsapp_number: '265887775776',
   contact_email: 'pecxelinnovations@gmail.com',
@@ -133,6 +133,8 @@ const insertSetting = db.prepare('INSERT OR IGNORE INTO site_settings (setting_k
 Object.entries(settingDefaults).forEach(([key, value]) => insertSetting.run(key, value));
 db.prepare('UPDATE site_settings SET setting_value = ? WHERE setting_key = ? AND setting_value = ?')
   .run(settingDefaults.site_name, 'site_name', 'pEc-XeL');
+db.prepare('UPDATE site_settings SET setting_value = ? WHERE setting_key = ? AND setting_value = ?')
+  .run(settingDefaults.brand_descriptor, 'brand_descriptor', 'Innovations & Technology');
 db.prepare('UPDATE site_settings SET setting_value = ? WHERE setting_key = ? AND setting_value = ?')
   .run(settingDefaults.whatsapp_number, 'whatsapp_number', '265YOURNUMBER');
 db.prepare('UPDATE site_settings SET setting_value = ? WHERE setting_key = ? AND setting_value = ?')
